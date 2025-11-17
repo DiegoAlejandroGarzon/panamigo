@@ -44,10 +44,8 @@ class UserController extends Controller
 
     public function create(){
         $roles = Role::all();
-        $departments = Departament::all(); // Obtener los departamentos
-        $empresas = Empresa::all();
 
-        return view('users.create', compact(['roles', 'departments', 'empresas']));
+        return view('users.create', compact(['roles']));
     }
 
     public function store(Request $request){
@@ -151,10 +149,8 @@ class UserController extends Controller
     public function profileEdit($id){
         $user = User::find($id);
         $roles = Role::all();
-        $departments = Departament::all(); // Obtener los departamentos
         $profileUpdate = true;
-        $empresas = Empresa::all();
-        return view('users.update', compact(['user', 'roles', 'profileUpdate', 'departments', 'empresas']));
+        return view('users.update', compact(['user', 'roles', 'profileUpdate']));
     }
 
     public function profileUpdate(Request $request){

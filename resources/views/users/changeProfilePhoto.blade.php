@@ -31,7 +31,7 @@
                         <!-- Input para subir una nueva foto de perfil -->
                         <div class="mt-4">
                             <label for="profile_photo" class="form-label">Seleccionar Nueva Foto de Perfil</label>
-                            <input type="file" name="profile_photo" id="profile_photo" class="form-control">
+                            <input type="file" name="profile_photo" id="profile_photo" class="form-control" **accept="image/*"**>
                             @error('profile_photo')
                                 <div class="text-red-500 mt-2 text-sm">{{ $message }}</div>
                             @enderror

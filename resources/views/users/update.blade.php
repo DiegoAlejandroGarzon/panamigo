@@ -150,66 +150,6 @@
                 @endif
 
                 <div class="row row_dptocity">
-                    <!-- Department -->
-                    <div class="col mt-3 col_depto">
-                        <x-base.form-label for="department_id">Departamento</x-base.form-label>
-                        <x-base.tom-select
-                            class="w-full {{ $errors->has('department_id') ? 'border-red-500' : '' }}"
-                            id="department_id"
-                            name="department_id"
-                            onchange="filterCities()"
-                        >
-                            <option></option>
-                            @foreach ($departments as $department)
-                                <option value="{{ $department->id }}"
-                                    {{ old('department_id', optional($user->city)->department ? $user->city->department->id : null) == $department->id ? 'selected' : '' }}>
-                                    {{ $department->name }}
-                                </option>
-                            @endforeach
-                        </x-base.tom-select>
-                        @error('department_id')
-                            <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
-                        @enderror
-                    </div>
-
-                    <!-- City -->
-                    <div class="col mt-3 col_city">
-                        <x-base.form-label for="city_id">Ciudad</x-base.form-label>
-                        <x-base.tom-select
-                            class="w-full {{ $errors->has('city_id') ? 'border-red-500' : '' }}"
-                            id="city_id"
-                            name="city_id"
-                        >
-                            @if($user->city)
-                                <option value="{{ $user->city->id }}">{{ $user->city->name }}</option>
-                            @else
-                                <option></option>
-                            @endif
-                            <!-- Aquí se llenarán las ciudades filtradas -->
-                        </x-base.tom-select>
-                        @error('city_id')
-                            <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
-                        @enderror
-                    </div>
-                </div>
-                <!-- empresa -->
-                <div class="mt-3">
-                    <x-base.form-label for="empresa_id">empresa</x-base.form-label>
-                    <x-base.tom-select
-                        class="w-full {{ $errors->has('empresa_id') ? 'border-red-500' : '' }}"
-                        id="empresa_id"
-                        name="empresa_id"
-                    >
-                        <option></option>
-                        @foreach ($empresas as $empresa)
-                            {{-- <option value="{{$empresa->id}}" {{ old('empresa_id') == $empresa->id ? 'selected' : '' }}>{{ $empresa->nombre }}</option> --}}
-                            <option value="{{$empresa->id}}" {{ old('empresa_id', $user->empresa_id) == $empresa->id ? 'selected' : '' }}>{{ $empresa->nombre }}</option>
-                        @endforeach
-                    </x-base.tom-select>
-                    @error('empresa_id')
-                        <div class="text-red-500 text-sm mt-1">{{ $message }}</div>
-                    @enderror
-                </div>
 
                 @if(!isset($profileUpdate))
                 <div class="mt-3">

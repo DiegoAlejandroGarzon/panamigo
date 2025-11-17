@@ -26,71 +26,23 @@ class SideMenu
                     ]
                 ]
             ],
-            'empresas' => [
-                'icon' => 'file-text',
-                'title' => 'Empresas',
-                'sub_menu' => [
-                    'empresas.create' => [
-                        'icon' => 'file-text',
-                        'route_name' => 'empresa.create',
-                        'title' => 'Crear empresa'
-                    ],
-                    'empresas.index' => [
-                        'icon' => 'file-text',
-                        'route_name' => 'empresa.index',
-                        'title' => 'Lista de Empresas'
-                    ]
-                ]
-            ],
-            'empleados' => [
-                'icon' => 'file-text',
-                'title' => 'Empleados',
-                'sub_menu' => [
-                    'empleado.create' => [
-                        'icon' => 'file-text',
-                        'route_name' => 'empleado.create',
-                        'title' => 'Crear Empleado'
-                    ],
-                    'empleado.index' => [
-                        'icon' => 'file-text',
-                        'route_name' => 'empleado.index',
-                        'title' => 'Lista de Empleados'
-                    ]
-                ]
-            ],
-            'Citas' => [
-                'icon' => 'file-text',
-                'title' => 'Citas',
-                'sub_menu' => [
-                    'citas.create' => [
-                        'icon' => 'file-text',
-                        'route_name' => 'citas.create',
-                        'title' => 'Crear Cita'
-                    ],
-                    'citas.index' => [
-                        'icon' => 'file-text',
-                        'route_name' => 'citas.index',
-                        'title' => 'Lista de Citas'
-                    ]
-                ]
-            ],
             'Configuraciones' => [
                 'icon' => 'file-text',
                 'title' => 'Configuraciones',
                 'sub_menu' => [
                     'configuration.department' => [
                         'icon' => 'file-text',
-                        'route_name' => 'department.index',
+                        // 'route_name' => 'department.index',
                         'title' => 'Departamentos'
                     ],
                     'configuration.city' => [
                         'icon' => 'file-text',
-                        'route_name' => 'city.index',
+                        // 'route_name' => 'city.index',
                         'title' => 'Ciudades'
                     ],
                     'configuration.servicio' => [
                         'icon' => 'file-text',
-                        'route_name' => 'servicio.index',
+                        // 'route_name' => 'servicio.index',
                         'title' => 'Servicios'
                     ],
                 ]

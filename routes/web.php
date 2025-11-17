@@ -49,6 +49,7 @@ Route::post('password/reset', [ResetPasswordController::class, 'reset'])->name('
 
 Route::middleware(['auth:sanctum', 'verified'])->group(function () {
 
+    Route::get('/home', [App\Http\Controllers\HomeController::class, 'index']);
     Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
     //CRUD USUARIOS
     Route::get('/users', [UserController::class, 'index'])->name('users.index');

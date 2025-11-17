@@ -40,11 +40,6 @@ class SideMenu
                         // 'route_name' => 'city.index',
                         'title' => 'Ciudades'
                     ],
-                    'configuration.servicio' => [
-                        'icon' => 'file-text',
-                        // 'route_name' => 'servicio.index',
-                        'title' => 'Servicios'
-                    ],
                 ]
             ],
         ];

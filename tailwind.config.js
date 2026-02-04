@@ -170,6 +170,23 @@ module.exports = {
                         "--color-primary": toRGB(colors.indigo["700"]),
                     },
                 },
+                // Jaki-Pan colors
+                ".theme-jaki": {
+                    "--color-theme-1": toRGB(colors.green["600"]), // Primary Green
+                    "--color-theme-2": toRGB(colors.orange["500"]), // Secondary Orange
+                    "--color-primary": toRGB(colors.green["700"]),
+                    "--color-secondary": toRGB(colors.orange["100"]),
+                    "--color-success": toRGB(colors.emerald["600"]),
+                    "--color-info": toRGB(colors.cyan["500"]),
+                    "--color-warning": toRGB(colors.yellow["500"]),
+                    "--color-pending": toRGB(colors.orange["600"]),
+                    "--color-danger": toRGB(colors.red["700"]),
+                    "--color-light": toRGB(colors.slate["50"]),
+                    "--color-dark": toRGB(colors.slate["900"]),
+                    "&.dark": {
+                        "--color-primary": toRGB(colors.green["800"]),
+                    },
+                },
             });
         }),
     ],

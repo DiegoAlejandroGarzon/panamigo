@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PageController;
 use App\Http\Controllers\ThemeController;
 use App\Http\Controllers\LayoutController;
+use App\Http\Controllers\PrinterController;
 
 /*
 |--------------------------------------------------------------------------
@@ -29,6 +30,11 @@ use App\Http\Controllers\CitaController;
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\ServicioController;
 
+Route::get('/pruebaServidor', function () {
+    return response()->json([
+        'message' => 'Servidor funcionando correctamente'
+    ]);
+});
 Route::get('theme-switcher/{activeTheme}', [ThemeController::class, 'switch'])->name('theme-switcher');
 Route::get('layout-switcher/{activeLayout}', [LayoutController::class, 'switch'])->name('layout-switcher');
 Route::post('/login', [LoginController::class, 'login']);
@@ -47,8 +53,14 @@ Route::get('password/reset/{token}', [ResetPasswordController::class, 'showReset
 // Procesar el restablecimiento de contraseña
 Route::post('password/reset', [ResetPasswordController::class, 'reset'])->name('password.update');
 
+
 Route::middleware(['auth:sanctum', 'verified'])->group(function () {
 
+    //PRINTER
+    Route::get('/printer/status', [PrinterController::class, 'printerStatus']);
+    Route::get('/printer/status', [PrinterController::class, 'status']);
+    Route::post('/printer/test', [PrinterController::class, 'test']);
+    //HOME
     Route::get('/home', [App\Http\Controllers\HomeController::class, 'index']);
     Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
     //CRUD USUARIOS
@@ -68,7 +80,21 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::get('/profile/changePassword', [UserController::class, 'changePassword'])->name('profile.changePassword');
     Route::patch('/profile/changePassword', [UserController::class, 'changePasswordUpdate'])->name('profile.changePasswordUpdate');
 
+    // Jaki-Pan POS Routes
+    Route::middleware(['role:Admin'])->group(function () {
+        Route::get('/admin/dashboard', \App\Livewire\Admin\Dashboard::class)->name('admin.dashboard');
+        Route::get('/admin/products', \App\Livewire\Admin\ProductManager::class)->name('admin.products');
+    });
+
+    Route::middleware(['role:Atención al Cliente'])->group(function () {
+        Route::get('/pos/order', \App\Livewire\Ac\OrderTaker::class)->name('pos.order');
+    });
+
+    Route::middleware(['role:Cajera'])->group(function () {
+        Route::get('/pos/cashier', \App\Livewire\Cashier\Terminal::class)->name('pos.cashier');
+    });
 });
+
 
 
 Route::controller(PageController::class)->group(function () {

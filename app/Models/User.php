@@ -69,4 +69,9 @@ class User extends Authenticatable
     {
         return Carbon::parse($this->birth_date)->age;
     }
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
 }

@@ -31,7 +31,77 @@ class SimpleMenu
                     ]
                 ]
             ],
+            'caja' => [
+                'icon' => 'credit-card',
+                'route_name' => 'pos.cashier',
+                'title' => 'Caja'
+            ],
+            'Configuraciones' => [
+                'icon' => 'file-text',
+                'title' => 'Configuraciones',
+                'sub_menu' => [
+                    'configuration.department' => [
+                        'icon' => 'file-text',
+                        // 'route_name' => 'department.index',
+                        'title' => 'Departamentos'
+                    ],
+                    'configuration.city' => [
+                        'icon' => 'file-text',
+                        // 'route_name' => 'city.index',
+                        'title' => 'Ciudades'
+                    ],
+                ]
+            ],
+        ];
+
+        // Admin and Super Admin configurations
+        if (auth()->check() && auth()->user()->hasAnyRole(['Admin', 'super-admin'])) {
+            $menu['Configuraciones']['sub_menu']['admin.categories'] = [
+                'icon' => 'tag',
+                'route_name' => 'admin.categories',
+                'title' => 'Categorías'
+            ];
+            $menu['Configuraciones']['sub_menu']['admin.categories.create'] = [
+                'icon' => 'plus-circle',
+                'route_name' => 'admin.categories',
+                'params' => ['create' => 1],
+                'title' => 'Añadir Categoría'
+            ];
+            $menu['Configuraciones']['sub_menu']['admin.brands'] = [
+                'icon' => 'award',
+                'route_name' => 'admin.brands',
+                'title' => 'Marcas'
+            ];
+            $menu['Configuraciones']['sub_menu']['admin.brands.create'] = [
+                'icon' => 'plus-circle',
+                'route_name' => 'admin.brands',
+                'params' => ['create' => 1],
+                'title' => 'Añadir Marca'
+            ];
+        }
+
+        $menu += [
             'divider',
+            'pos_dashboard' => [
+                'icon' => 'home',
+                'route_name' => 'admin.dashboard',
+                'title' => 'Dashboard POS'
+            ],
+            'productos' => [
+                'icon' => 'shopping-bag',
+                'route_name' => 'admin.products',
+                'title' => 'Productos'
+            ],
+            'ventas' => [
+                'icon' => 'shopping-cart',
+                'route_name' => 'pos.order',
+                'title' => 'Ventas (POS)'
+            ],
+            'caja' => [
+                'icon' => 'credit-card',
+                'route_name' => 'pos.cashier',
+                'title' => 'Caja'
+            ],
             'divider',
             'dashboard' => [
                 'icon' => 'home',

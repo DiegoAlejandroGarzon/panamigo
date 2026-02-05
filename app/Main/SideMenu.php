@@ -43,6 +43,44 @@ class SideMenu
                 ]
             ],
         ];
+
+        // Admin and Super Admin configurations
+        if (auth()->check() && auth()->user()->hasAnyRole(['Admin', 'super-admin'])) {
+            $menu['Configuraciones']['sub_menu']['admin.categories'] = [
+                'icon' => 'tag',
+                'route_name' => 'admin.categories',
+                'title' => 'Categorías'
+            ];
+            $menu['Configuraciones']['sub_menu']['admin.brands'] = [
+                'icon' => 'award',
+                'route_name' => 'admin.brands',
+                'title' => 'Marcas'
+            ];
+        }
+
+        $menu += [
+            'pos_divider' => 'divider',
+            'pos_dashboard' => [
+                'icon' => 'home',
+                'route_name' => 'admin.dashboard',
+                'title' => 'Dashboard POS'
+            ],
+            'productos' => [
+                'icon' => 'shopping-bag',
+                'route_name' => 'admin.products',
+                'title' => 'Productos'
+            ],
+            'ventas' => [
+                'icon' => 'shopping-cart',
+                'route_name' => 'pos.order',
+                'title' => 'Ventas (POS)'
+            ],
+            'caja' => [
+                'icon' => 'credit-card',
+                'route_name' => 'pos.cashier',
+                'title' => 'Caja'
+            ],
+        ];
         // Verificar el entorno y agregar el menú de configuraciones solo si APP_ENV es 'local'
         if (env('APP_ENV') === 'local') {
             $menu['divider'] = "divider";

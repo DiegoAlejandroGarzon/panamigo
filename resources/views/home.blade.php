@@ -29,7 +29,7 @@ document.getElementById('btn').addEventListener('click', async () => {
         const printers = await qz.printers.find();
         console.log('Impresoras:', printers);
 
-        const printer = printers.find(p => p.includes('XP'));
+        const printer = printers.find(p => p.includes('XP-58'));
         console.log('Usando:', printer);
 
         // const config = qz.configs.create(printer);

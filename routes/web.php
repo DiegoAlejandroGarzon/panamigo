@@ -81,16 +81,18 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
     Route::patch('/profile/changePassword', [UserController::class, 'changePasswordUpdate'])->name('profile.changePasswordUpdate');
 
     // Jaki-Pan POS Routes
-    Route::middleware(['role:Admin'])->group(function () {
+    Route::middleware(['role:Admin|super-admin'])->group(function () {
         Route::get('/admin/dashboard', \App\Livewire\Admin\Dashboard::class)->name('admin.dashboard');
         Route::get('/admin/products', \App\Livewire\Admin\ProductManager::class)->name('admin.products');
+        Route::get('/admin/categories', \App\Livewire\Admin\CategoryManager::class)->name('admin.categories');
+        Route::get('/admin/brands', \App\Livewire\Admin\BrandManager::class)->name('admin.brands');
     });
 
-    Route::middleware(['role:Atención al Cliente'])->group(function () {
+    Route::middleware(['role:Atención al Cliente|super-admin'])->group(function () {
         Route::get('/pos/order', \App\Livewire\Ac\OrderTaker::class)->name('pos.order');
     });
 
-    Route::middleware(['role:Cajera'])->group(function () {
+    Route::middleware(['role:Cajera|super-admin'])->group(function () {
         Route::get('/pos/cashier', \App\Livewire\Cashier\Terminal::class)->name('pos.cashier');
     });
 });

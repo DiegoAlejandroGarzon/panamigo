@@ -9,7 +9,7 @@ class TopMenu
      */
     public static function menu(): array
     {
-        return [
+        $menu = [
             'dashboard' => [
                 'icon' => 'home',
                 'title' => 'Dashboard',
@@ -143,10 +143,31 @@ class TopMenu
                         'route_name' => 'file-manager',
                         'title' => 'File Manager'
                     ],
-                    'point-of-sale' => [
+                    'pos' => [
                         'icon' => 'credit-card',
-                        'route_name' => 'point-of-sale',
-                        'title' => 'Point of Sale'
+                        'title' => 'Jaki-Pan POS',
+                        'sub_menu' => [
+                            'pos-dashboard' => [
+                                'icon' => 'zap',
+                                'route_name' => 'admin.dashboard',
+                                'title' => 'Dashboard POS'
+                            ],
+                            'productos' => [
+                                'icon' => 'zap',
+                                'route_name' => 'admin.products',
+                                'title' => 'Productos'
+                            ],
+                            'ventas' => [
+                                'icon' => 'zap',
+                                'route_name' => 'pos.order',
+                                'title' => 'Ventas (POS)'
+                            ],
+                            'caja' => [
+                                'icon' => 'zap',
+                                'route_name' => 'pos.cashier',
+                                'title' => 'Caja'
+                            ],
+                        ]
                     ],
                     'chat' => [
                         'icon' => 'message-square',
@@ -484,5 +505,39 @@ class TopMenu
                 ]
             ]
         ];
+
+        // Admin and Super Admin configurations
+        if (auth()->check() && auth()->user()->hasAnyRole(['Admin', 'super-admin'])) {
+            $menu['configurations'] = [
+                'icon' => 'file-text',
+                'title' => 'Configuraciones',
+                'sub_menu' => [
+                    'admin.categories' => [
+                        'icon' => 'tag',
+                        'route_name' => 'admin.categories',
+                        'title' => 'Categorías'
+                    ],
+                    'admin.categories.create' => [
+                        'icon' => 'plus-circle',
+                        'route_name' => 'admin.categories',
+                        'params' => ['create' => 1],
+                        'title' => 'Añadir Categoría'
+                    ],
+                    'admin.brands' => [
+                        'icon' => 'award',
+                        'route_name' => 'admin.brands',
+                        'title' => 'Marcas'
+                    ],
+                    'admin.brands.create' => [
+                        'icon' => 'plus-circle',
+                        'route_name' => 'admin.brands',
+                        'params' => ['create' => 1],
+                        'title' => 'Añadir Marca'
+                    ],
+                ]
+            ];
+        }
+
+        return $menu;
     }
 }

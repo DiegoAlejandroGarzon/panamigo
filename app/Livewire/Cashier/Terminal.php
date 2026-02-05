@@ -8,6 +8,8 @@ use App\Models\Order;
 class Terminal extends Component
 {
     public $selectedOrder = null;
+    public $fastAmount = '';
+    public $shouldPrint = true;
 
     public function render()
     {
@@ -26,6 +28,35 @@ class Terminal extends Component
         $this->selectedOrder = Order::with(['items.product', 'user'])->find($orderId);
     }
 
+    public function togglePrint()
+    {
+        $this->shouldPrint = !$this->shouldPrint;
+    }
+
+    public function processFastSale()
+    {
+        $this->validate([
+            'fastAmount' => 'required|numeric|min:0.01'
+        ]);
+
+        $order = Order::create([
+            'user_id' => auth()->id(),
+            'total' => $this->fastAmount,
+            'status' => 'paid',
+            'customer_served_by' => 'Caja'
+        ]);
+
+        if ($this->shouldPrint) {
+            $this->dispatch('print-ticket', order: $order->load('items.product'));
+        } else {
+            // Even if not printing ticket, maybe open drawer?
+            $this->dispatch('open-drawer');
+        }
+
+        $this->fastAmount = '';
+        session()->flash('message', 'Venta rápida por $' . $order->total . ' procesada.');
+    }
+
     public function markAsPaid()
     {
         if (!$this->selectedOrder) return;
@@ -34,10 +65,19 @@ class Terminal extends Component
         $this->selectedOrder->save();
 
         // Dispatch browser event for printing
-        $this->dispatch('print-ticket', order: $this->selectedOrder->load('items.product'));
+        if ($this->shouldPrint) {
+            $this->dispatch('print-ticket', order: $this->selectedOrder->load('items.product'));
+        } else {
+            $this->dispatch('open-drawer');
+        }
 
-        session()->flash('message', 'Pedido #' . $this->selectedOrder->id . ' marcado como pagado e imprimiendo.');
+        session()->flash('message', 'Pedido #' . $this->selectedOrder->id . ' marcado como pagado.');
         
         $this->selectedOrder = null;
+    }
+
+    public function openDrawerOnly()
+    {
+        $this->dispatch('open-drawer');
     }
 }

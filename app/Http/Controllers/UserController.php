@@ -56,13 +56,13 @@ class UserController extends Controller
             'password' => 'required|string|confirmed|min:8',
             'role_id' => 'required|exists:roles,id',
             'status' => 'nullable|boolean',
-            'department_id' => 'required|exists:departments,id',
-            'city_id' => 'required|exists:cities,id',
+            // 'department_id' => 'required|exists:departments,id',
+            // 'city_id' => 'required|exists:cities,id',
             'birth_date' => 'nullable|date',
             'phone' => 'required|string|max:15',
             'type_document' => 'required|string|max:3',
             'document_number' => 'required|string|max:20|unique:users,document_number',
-            'empresa_id' => 'required|exists:empresas,id',
+            // 'empresa_id' => 'required|exists:empresas,id',
         ]);
 
         $user = new User();
@@ -71,12 +71,12 @@ class UserController extends Controller
         $user->email = $request->email;
         $user->password = bcrypt($request->password);
         $user->status = $request->status;
-        $user->city_id = $request->city_id;
-        $user->birth_date = $request->birth_date;
+        // $user->city_id = $request->city_id;
+        // $user->birth_date = $request->birth_date;
         $user->phone = $request->phone;
         $user->type_document = $request->type_document;
         $user->document_number = $request->document_number;
-        $user->empresa_id = $request->empresa_id;
+        // $user->empresa_id = $request->empresa_id;
         $user->save();
 
         //validar ciudades

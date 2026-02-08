@@ -76,6 +76,48 @@ class Terminal extends Component
         $this->selectedOrder = null;
     }
 
+    public $showZModal = false;
+    public $zDate = '';
+    public $zTotal = 0;
+    public $zCount = 0;
+
+    public function mount()
+    {
+        $this->zDate = date('Y-m-d');
+    }
+
+    public function openZModal()
+    {
+        $this->showZModal = true;
+    }
+
+    public function closeZModal()
+    {
+        $this->showZModal = false;
+    }
+
+    public function loadRealZData()
+    {
+        $date = $this->zDate ?: date('Y-m-d');
+        $orders = Order::whereDate('created_at', $date)
+            ->where('status', 'paid')
+            ->get();
+        
+        $this->zTotal = $orders->sum('total');
+        $this->zCount = $orders->count();
+    }
+
+    public function printZReport()
+    {
+        $this->dispatch('print-z', data: [
+            'date' => $this->zDate,
+            'total' => $this->zTotal,
+            'count' => $this->zCount,
+        ]);
+        
+        $this->showZModal = false;
+    }
+
     public function openDrawerOnly()
     {
         $this->dispatch('open-drawer');

@@ -2,6 +2,9 @@
     <div class="intro-y flex flex-col sm:flex-row items-center mt-8">
         <h2 class="text-lg font-medium mr-auto">Caja - Terminal de Venta</h2>
         <div class="w-full sm:w-auto flex mt-4 sm:mt-0 gap-2">
+            <x-base.button wire:click="openZModal" variant="primary" class="shadow-md flex items-center gap-2">
+                <x-base.lucide icon="FileText" class="w-4 h-4" /> REPORTE Z
+            </x-base.button>
             <x-base.button wire:click="openDrawerOnly" variant="outline-secondary"
                 class="shadow-md flex items-center gap-2">
                 <x-base.lucide icon="Archive" class="w-4 h-4" /> ABRIR CAJÓN
@@ -15,6 +18,54 @@
             </div>
         </div>
     </div>
+
+    <!-- Z Report Modal -->
+    @if ($showZModal)
+        <div class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+            <div class="intro-y box w-full max-w-md bg-white shadow-2xl rounded-xl">
+                <div class="p-5 border-b border-slate-200 flex justify-between items-center">
+                    <h2 class="font-bold text-lg">GENERAR REPORTE Z (DIARIO)</h2>
+                    <button wire:click="closeZModal" class="text-slate-400 hover:text-slate-600"><x-base.lucide
+                            icon="X" class="w-6 h-6" /></button>
+                </div>
+                <div class="p-6 space-y-4">
+                    <div>
+                        <label class="form-label font-bold text-xs uppercase text-slate-500">Fecha del Reporte</label>
+                        <input type="date" wire:model.live="zDate" class="form-control">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <x-base.button wire:click="loadRealZData" variant="outline-primary" class="w-full text-xs py-3">
+                            <x-base.lucide icon="RefreshCw" class="w-4 h-4 mr-2" /> VALORES REALES (BD)
+                        </x-base.button>
+                        <div class="flex items-center text-xs text-slate-400 italic">
+                            Carga el total de ventas y personas del día seleccionado.
+                        </div>
+                    </div>
+
+                    <hr class="border-slate-100">
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="form-label font-bold text-xs uppercase text-slate-500">Total Venta ($)</label>
+                            <input type="number" wire:model="zTotal" class="form-control text-xl font-bold">
+                        </div>
+                        <div>
+                            <label class="form-label font-bold text-xs uppercase text-slate-500">Personas
+                                (Count)</label>
+                            <input type="number" wire:model="zCount" class="form-control text-xl font-bold">
+                        </div>
+                    </div>
+                </div>
+                <div class="p-5 border-t border-slate-200 flex justify-end gap-2 bg-slate-50 rounded-b-xl">
+                    <x-base.button wire:click="closeZModal" variant="outline-secondary">CANCELAR</x-base.button>
+                    <x-base.button wire:click="printZReport" variant="success" class="text-white px-8">
+                        <x-base.lucide icon="Printer" class="w-4 h-4 mr-2" /> IMPRIMIR Z
+                    </x-base.button>
+                </div>
+            </div>
+        </div>
+    @endif
 
     <div class="grid grid-cols-12 gap-6 mt-5">
         <!-- Fast Sale Section -->
@@ -164,6 +215,12 @@
                 printTicket(order);
             });
 
+            Livewire.on('print-z', (event) => {
+                const zData = event.data;
+                console.log("Printing Z Report:", zData);
+                printZReport(zData);
+            });
+
             Livewire.on('open-drawer', () => {
                 console.log("Opening drawer only...");
                 openDrawer();
@@ -185,6 +242,66 @@
             }).catch(e => console.error(e)).finally(() => qz.websocket.disconnect());
         }
 
+        function printZReport(z) {
+            if (typeof qz === 'undefined') return;
+
+            qz.websocket.connect().then(function() {
+                return qz.printers.find(PRINTER_NAME);
+            }).then(function(printer) {
+                var config = qz.configs.create(printer);
+                var formattedDate = z.date;
+                var total = parseInt(z.total).toLocaleString('es-CO');
+                var count = z.count.toString().padStart(4, ' ');
+
+                var data = [
+                    '\x1B' + '\x40', // Initialize
+                    '\x1B' + '\x61' + '\x31', // Center
+                    '\x1B' + '\x21' + '\x08', // Bold
+                    'JAKI - PAN Y SUS DELICIAS\x0A',
+                    '\x1B' + '\x21' + '\x00', // Normal
+                    'JACQUELINE NOVOA URREGO\x0A',
+                    'NIT. 39.628.435-9\x0A',
+                    'REGIMEN SIMPLIFICADO\x0A\x0A',
+                    'KRA 16 # 5-04\x0A',
+                    'ALTO DEL ROSARIO\x0A',
+                    'REG CASIO SE-800-0303888\x0A\x0A',
+                    'Z   ' + formattedDate + '   3888 387625\x0A',
+                    '--------------------------------\x0A',
+                    'Z DAIARIO\x0A',
+                    '--------------------------------\x0A',
+                    '\x1B' + '\x61' + '\x30', // Left
+                    'Z       DEPTOS           3392\x0A',
+                    '                       0001015\x0A\x0A',
+                    'DEPTO1             ' + count + '\x0A',
+                    '                   ' + total + '\x0A\x0A',
+                    'TL                 ' + count + '\x0A',
+                    '                   ' + total + '\x0A\x0A',
+                    'Z       TOT. FIJOS       3392\x0A',
+                    '                       0001011\x0A\x0A',
+                    'BRUTO              ' + count + '\x0A',
+                    '                   ' + total + '\x0A',
+                    'NETO               ' + count + '\x0A',
+                    '                   ' + total + '\x0A',
+                    'EFEC               ' + count + '\x0A',
+                    '                   ' + total + '\x0A\x0A',
+                    'BASE 1                0\x0A',
+                    'BASE 2                0\x0A',
+                    '                      0\x0A',
+                    '                      0\x0A',
+                    '          387542----->387625\x0A\x0A',
+                    'Z       FUNC LIBRES      3392\x0A',
+                    '                       0001012\x0A\x0A',
+                    'CAJA               ' + count + '\x0A',
+                    '                   ' + total + '\x0A\x0A',
+                    'Z       CAJ/EMPLEADO     3392\x0A',
+                    '                       0001017\x0A\x0A',
+                    '\x0A\x0A\x0A\x0A\x0A\x1B\x69' // Paper cut
+                ];
+
+                return qz.print(config, data);
+            }).catch(e => console.error(e)).finally(() => qz.websocket.disconnect());
+        }
+
         function printTicket(order) {
             if (typeof qz === 'undefined') {
                 console.error('QZ Tray library not loaded!');
@@ -197,32 +314,44 @@
                 var config = qz.configs.create(printer);
 
                 var data = [
-                    '\x1B' + '\x40', // Init
-                    '\x1B' + '\x70' + '\x00' + '\x19' + '\xFA', // ABRIR CAJÓN (Añadido)
-                    '\x1B' + '\x61' + '\x31', // Center
-                    'JAKI-PAN POS\x0A',
-                    'Ticket #' + order.id + '\x0A',
+                    '\x1B' + '\x40', // Initialize
+                    '\x1B' + '\x70' + '\x00' + '\x19' + '\xFA', // Open Drawer
+                    '\x1B' + '\x61' + '\x31', // Center alignment
+                    '\x1B' + '\x21' + '\x08', // Bold
+                    'JAKI - PAN Y SUS DELICIAS\x0A',
+                    '\x1B' + '\x21' + '\x00', // Normal font
+                    'JACQUELINE NOVOA URREGO\x0A',
+                    'NIT. 39.628.435-9\x0A',
+                    'REGIMEN SIMPLIFICADO\x0A',
                     '\x0A',
-                    '\x1B' + '\x61' + '\x30', // Left
-                    'Fecha: ' + new Date().toLocaleString() + '\x0A',
-                    'Atendido por: ' + (order.customer_served_by || 'Caja') + '\x0A',
-                    '--------------------------------\x0A'
+                    'KRA 16 # 5-04\x0A',
+                    'ALTO DEL ROSARIO\x0A',
+                    'REG CASIO SE-800-0303888\x0A',
+                    '\x0A',
+                    '\x1B' + '\x61' + '\x30', // Left alignment
+                    'REG- ' + new Date().toISOString().slice(0, 10) + ' ' + order.id.toString().padStart(4,
+                        '0') + ' ' + (Math.floor(Math.random() * 900000) + 100000) + '\x0A',
+                    '\x0A'
                 ];
 
                 if (order.items && order.items.length > 0) {
                     order.items.forEach(item => {
-                        data.push(item.product.name.substring(0, 20).padEnd(20) + ' x' + item.quantity +
-                            '\x0A');
-                        data.push('           Subtotal: $' + item.subtotal + '\x0A');
+                        let qty = item.quantity.toString().padStart(2, ' ');
+                        let name = item.product.name.substring(0, 18).toUpperCase().padEnd(18, ' ');
+                        let price = parseInt(item.subtotal).toLocaleString('es-CO').padStart(8, ' ');
+                        data.push(qty + ' ' + name + ' ' + price + '\x0A');
                     });
                 } else {
-                    data.push('VENTA DIRECTA\x0A');
+                    // For fast sales
+                    let price = parseInt(order.total).toLocaleString('es-CO').padStart(8, ' ');
+                    data.push(' 1 VENTA DIRECTA     ' + price + '\x0A');
                 }
 
-                data.push('--------------------------------\x0A');
-                data.push('\x1B' + '\x21' + '\x10'); // Double height
-                data.push('TOTAL: $' + order.total + '\x0A');
-                data.push('\x1B' + '\x21' + '\x00'); // Normal font
+                data.push('\x0A');
+                data.push('   TL                ' + parseInt(order.total).toLocaleString('es-CO').padStart(8, ' ') +
+                    '\x0A');
+                data.push('\x0A');
+                data.push('   CAJA\x0A');
                 data.push('\x0A\x0A\x0A\x0A\x0A\x1B\x69'); // Paper cut
 
                 return qz.print(config, data);

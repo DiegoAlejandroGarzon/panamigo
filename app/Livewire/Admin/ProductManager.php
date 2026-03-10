@@ -31,11 +31,13 @@ class ProductManager extends Component
     public function openModal()
     {
         $this->isOpen = true;
+        $this->dispatch('open-product-modal');
     }
 
     public function closeModal()
     {
         $this->isOpen = false;
+        $this->dispatch('close-product-modal');
     }
 
     private function resetInputFields()
@@ -54,7 +56,6 @@ class ProductManager extends Component
         $this->validate([
             'name' => 'required',
             'price' => 'required|numeric',
-            'stock' => 'required|integer',
             'category_id' => 'required',
             'brand_id' => 'required',
         ]);
@@ -62,7 +63,7 @@ class ProductManager extends Component
         Product::updateOrCreate(['id' => $this->product_id], [
             'name' => $this->name,
             'price' => $this->price,
-            'stock' => $this->stock,
+            'stock' => $this->stock ?: 0,
             'provisional_image' => $this->provisional_image,
             'category_id' => $this->category_id,
             'brand_id' => $this->brand_id,

@@ -14,10 +14,14 @@ class OrderTaker extends Component
     public $cart = [];
     public $total = 0;
 
+    // Pan especial
+    public $showPanModal = false;
+    public $panAmount = '';
+    public $panProductId = null;
+
     public function render()
     {
         $products = Product::where('name', 'like', '%' . $this->search . '%')
-            ->where('stock', '>', 0)
             ->get();
 
         return view('livewire.ac.order-taker', [
@@ -29,6 +33,14 @@ class OrderTaker extends Component
     {
         $product = Product::find($productId);
         
+        // Si el producto se llama "PAN" o similar, abrir el modal en vez de añadir directo si es la primera vez?
+        // O mejor una función aparte para el pan.
+        
+        if(strtoupper($product->name) == 'PAN') {
+            $this->openPanModal($product->id);
+            return;
+        }
+
         if(isset($this->cart[$productId])) {
             $this->cart[$productId]['quantity']++;
             $this->cart[$productId]['subtotal'] = $this->cart[$productId]['quantity'] * $product->price;
@@ -38,10 +50,45 @@ class OrderTaker extends Component
                 'name' => $product->name,
                 'price' => $product->price,
                 'quantity' => 1,
-                'subtotal' => $product->price
+                'subtotal' => $product->price,
+                'is_pan' => false
             ];
         }
         $this->calculateTotal();
+    }
+
+    public function openPanModal($productId)
+    {
+        $this->panProductId = $productId;
+        $this->panAmount = isset($this->cart[$productId]) ? $this->cart[$productId]['subtotal'] : '';
+        $this->showPanModal = true;
+    }
+
+    public function closePanModal()
+    {
+        $this->showPanModal = false;
+        $this->panAmount = '';
+    }
+
+    public function addPanToCart()
+    {
+        $this->validate([
+            'panAmount' => 'required|numeric|min:0'
+        ]);
+
+        $product = Product::find($this->panProductId);
+
+        $this->cart[$this->panProductId] = [
+            'id' => $product->id,
+            'name' => $product->name,
+            'price' => $this->panAmount,
+            'quantity' => 1,
+            'subtotal' => $this->panAmount,
+            'is_pan' => true
+        ];
+
+        $this->calculateTotal();
+        $this->closePanModal();
     }
 
     public function removeFromCart($productId)
@@ -99,10 +146,6 @@ class OrderTaker extends Component
                 'quantity' => $item['quantity'],
                 'subtotal' => $item['subtotal']
             ]);
-            
-            // Decrease Stock
-            $product = Product::find($item['id']);
-            $product->decrement('stock', $item['quantity']);
         }
 
         $this->cart = [];

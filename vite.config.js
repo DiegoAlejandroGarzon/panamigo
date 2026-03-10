@@ -4,9 +4,12 @@ import path from "path";
 
 export default defineConfig({
     base: '/',
-    hmr: {
-        host: process.env.NODE_ENV === 'development' ? 'localhost' : false,
-    },
+    server: {
+        host: '0.0.0.0',
+        hmr: {
+            host: '192.168.101.10',
+        },
+    },
     build: {
         commonjsOptions: {
             include: ["tailwind.config.js", "node_modules/**"],

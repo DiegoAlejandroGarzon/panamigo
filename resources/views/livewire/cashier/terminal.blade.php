@@ -98,10 +98,16 @@
 
         <!-- List of Pending Orders -->
         <div class="col-span-12 lg:col-span-4 overflow-y-auto" style="max-height: 80vh;">
-            <div class="intro-y box p-5">
-                <h2 class="font-medium text-base mb-4 flex items-center">
-                    <x-base.lucide icon="ClipboardList" class="mr-2 w-5 h-5 text-primary" /> Pedidos de Atención
-                </h2>
+            <div class="intro-y box p-5" wire:poll.10s>
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="font-medium text-base flex items-center">
+                        <x-base.lucide icon="ClipboardList" class="mr-2 w-5 h-5 text-primary" /> Pedidos de Atención
+                    </h2>
+                    <x-base.button wire:click="$refresh" variant="outline-secondary" size="sm"
+                        class="px-2 py-1 shadow-sm">
+                        <x-base.lucide icon="RefreshCw" class="w-4 h-4" />
+                    </x-base.button>
+                </div>
                 <div class="space-y-3">
                     @forelse($pendingOrders as $order)
                         <div wire:click="selectOrder({{ $order->id }})"

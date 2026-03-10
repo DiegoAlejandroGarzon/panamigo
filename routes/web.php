@@ -88,7 +88,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
         Route::get('/admin/brands', \App\Livewire\Admin\BrandManager::class)->name('admin.brands');
     });
 
-    Route::middleware(['role:Atención al Cliente|super-admin'])->group(function () {
+    Route::middleware(['role:Atención al Cliente|Cajera|super-admin'])->group(function () {
         Route::get('/pos/order', \App\Livewire\Ac\OrderTaker::class)->name('pos.order');
     });
 

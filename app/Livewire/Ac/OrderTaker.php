@@ -32,7 +32,7 @@ class OrderTaker extends Component
             'products' => $query->get(),
             'categories' => \App\Models\Category::all(),
             'brands' => \App\Models\Brand::all(),
-        ]);
+        ])->layout('layouts.pos');
     }
 
     /**

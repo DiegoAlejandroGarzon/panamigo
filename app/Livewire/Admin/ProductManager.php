@@ -14,7 +14,6 @@ class ProductManager extends Component
     use WithFileUploads;
 
     public $products, $name, $price, $stock, $product_id, $provisional_image, $category_id, $brand_id, $idToDelete;
-    public $isOpen = false;
     
     // Excel Import
     public $excelFile;
@@ -33,25 +32,7 @@ class ProductManager extends Component
         ]);
     }
 
-    public function create()
-    {
-        $this->resetInputFields();
-        $this->openModal();
-    }
-
-    public function openModal()
-    {
-        $this->isOpen = true;
-        $this->dispatch('open-product-modal');
-    }
-
-    public function closeModal()
-    {
-        $this->isOpen = false;
-        $this->dispatch('close-product-modal');
-    }
-
-    private function resetInputFields()
+    public function resetInputFields()
     {
         $this->name = '';
         $this->price = '';
@@ -83,7 +64,7 @@ class ProductManager extends Component
         session()->flash('message', 
             $this->product_id ? 'Producto Actualizado con éxito.' : 'Producto Creado con éxito.');
 
-        $this->closeModal();
+        $this->dispatch('close-product-modal');
         $this->resetInputFields();
     }
 
@@ -98,7 +79,7 @@ class ProductManager extends Component
         $this->category_id = $product->category_id;
         $this->brand_id = $product->brand_id;
 
-        $this->openModal();
+        $this->dispatch('open-product-modal');
     }
 
     public function confirmDelete($id)
@@ -127,12 +108,7 @@ class ProductManager extends Component
     {
         $this->importResults = null;
         $this->excelFile = null;
-        $this->showImportModal = true;
-    }
-
-    public function closeImportModal()
-    {
-        $this->showImportModal = false;
+        $this->dispatch('open-import-modal');
     }
 
     public function importExcel()

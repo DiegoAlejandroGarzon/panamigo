@@ -2,13 +2,9 @@
     <h2 class="intro-y mt-10 text-lg font-medium">Gestión de Categorías</h2>
     <div class="mt-5 grid grid-cols-12 gap-6">
         <div class="intro-y col-span-12 mt-2 flex flex-wrap items-center sm:flex-nowrap">
-            <x-base.button
-                variant="primary"
-                class="mr-2 shadow-md"
-                wire:click="startCreate()"
-                data-tw-toggle="modal"
-                data-tw-target="#category-modal"
-            >
+            <!-- Nueva Categoría: Sin wire:click para evitar peticiones al servidor al abrir -->
+            <x-base.button variant="primary" class="mr-2 shadow-md" data-tw-toggle="modal" data-tw-target="#category-modal"
+                @click="$wire.set('category_id', null, false); $wire.set('name', '', false);">
                 Nueva Categoría
             </x-base.button>
             <div class="mx-auto hidden text-slate-500 md:block">
@@ -34,18 +30,23 @@
                 <x-base.table.tbody>
                     @foreach ($categories as $category)
                         <x-base.table.tr class="intro-x">
-                            <x-base.table.td class="box w-20 rounded-l-none rounded-r-none border-x-0 shadow-[5px_3px_5px_#00000005] first:rounded-l-[0.6rem] first:border-l last:rounded-r-[0.6rem] last:border-r dark:bg-darkmode-600">
+                            <x-base.table.td
+                                class="box w-20 rounded-l-none rounded-r-none border-x-0 shadow-[5px_3px_5px_#00000005] first:rounded-l-[0.6rem] first:border-l last:rounded-r-[0.6rem] last:border-r dark:bg-darkmode-600">
                                 {{ $category->id }}
                             </x-base.table.td>
-                            <x-base.table.td class="box rounded-l-none rounded-r-none border-x-0 shadow-[5px_3px_5px_#00000005] first:rounded-l-[0.6rem] first:border-l last:rounded-r-[0.6rem] last:border-r dark:bg-darkmode-600">
+                            <x-base.table.td
+                                class="box rounded-l-none rounded-r-none border-x-0 shadow-[5px_3px_5px_#00000005] first:rounded-l-[0.6rem] first:border-l last:rounded-r-[0.6rem] last:border-r dark:bg-darkmode-600">
                                 <span class="font-medium">{{ $category->name }}</span>
                             </x-base.table.td>
-                            <x-base.table.td class="box w-56 rounded-l-none rounded-r-none border-x-0 shadow-[5px_3px_5px_#00000005] first:rounded-l-[0.6rem] first:border-l last:rounded-r-[0.6rem] last:border-r dark:bg-darkmode-600">
+                            <x-base.table.td
+                                class="box w-56 rounded-l-none rounded-r-none border-x-0 shadow-[5px_3px_5px_#00000005] first:rounded-l-[0.6rem] first:border-l last:rounded-r-[0.6rem] last:border-r dark:bg-darkmode-600">
                                 <div class="flex items-center justify-center">
-                                    <a class="mr-3 flex items-center" href="javascript:;" wire:click="edit({{ $category->id }})" data-tw-toggle="modal" data-tw-target="#category-modal">
+                                    <a class="mr-3 flex items-center" href="javascript:;"
+                                        wire:click="edit({{ $category->id }})">
                                         <x-base.lucide class="mr-1 h-4 w-4" icon="CheckSquare" /> Editar
                                     </a>
-                                    <a class="flex items-center text-danger" href="javascript:;" wire:click="confirmDelete({{ $category->id }})">
+                                    <a class="flex items-center text-danger" href="javascript:;"
+                                        wire:click="confirmDelete({{ $category->id }})">
                                         <x-base.lucide class="mr-1 h-4 w-4" icon="Trash" /> Borrar
                                     </a>
                                 </div>
@@ -69,32 +70,18 @@
                 <x-base.dialog.description class="grid grid-cols-12 gap-4 gap-y-3">
                     <div class="col-span-12">
                         <x-base.form-label for="name">Nombre</x-base.form-label>
-                        <x-base.form-input
-                            id="name"
-                            type="text"
-                            placeholder="Nombre de la categoría"
-                            wire:model="name"
-                            wire:keydown.enter="store"
-                        />
-                        @error('name') <span class="text-danger mt-2">{{ $message }}</span> @enderror
+                        <x-base.form-input id="name" type="text" placeholder="Nombre de la categoría"
+                            wire:model="name" wire:keydown.enter="store" />
+                        @error('name')
+                            <span class="text-danger mt-2">{{ $message }}</span>
+                        @enderror
                     </div>
                 </x-base.dialog.description>
                 <x-base.dialog.footer>
-                    <x-base.button
-                        type="button"
-                        variant="outline-secondary"
-                        class="mr-1 w-20"
-                        wire:click="closeModal()"
-                        data-tw-dismiss="modal"
-                    >
+                    <x-base.button type="button" variant="outline-secondary" class="mr-1 w-20" data-tw-dismiss="modal">
                         Cancelar
                     </x-base.button>
-                    <x-base.button
-                        type="button"
-                        variant="primary"
-                        class="w-20"
-                        wire:click="store"
-                    >
+                    <x-base.button type="button" variant="primary" class="w-20" wire:click="store">
                         Guardar
                     </x-base.button>
                 </x-base.dialog.footer>
@@ -115,20 +102,10 @@
                     </div>
                 </div>
                 <div class="px-5 pb-8 text-center">
-                    <x-base.button
-                        class="mr-1 w-24"
-                        variant="outline-secondary"
-                        data-tw-dismiss="modal"
-                        type="button"
-                    >
+                    <x-base.button class="mr-1 w-24" variant="outline-secondary" data-tw-dismiss="modal" type="button">
                         Cancelar
                     </x-base.button>
-                    <x-base.button
-                        class="w-24"
-                        variant="danger"
-                        type="button"
-                        wire:click="delete"
-                    >
+                    <x-base.button class="w-24" variant="danger" type="button" wire:click="delete">
                         Eliminar
                     </x-base.button>
                 </div>
@@ -137,7 +114,7 @@
     @endteleport
 
     <script>
-        document.addEventListener('livewire:init', () => {
+        document.addEventListener('livewire:initialized', () => {
             Livewire.on('open-category-modal', (event) => {
                 const el = document.querySelector("#category-modal");
                 if (el) {
@@ -145,11 +122,11 @@
                     modal.show();
                 }
             });
-            
+
             Livewire.on('close-modal', (event) => {
-                const el = document.querySelector("#category-modal");
-                if (el) {
-                    const modal = tailwind.Modal.getOrCreateInstance(el);
+                const categoryModalEl = document.querySelector("#category-modal");
+                if (categoryModalEl) {
+                    const modal = tailwind.Modal.getOrCreateInstance(categoryModalEl);
                     modal.hide();
                 }
             });

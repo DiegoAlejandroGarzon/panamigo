@@ -8,17 +8,6 @@ use App\Models\Brand;
 class BrandManager extends Component
 {
     public $name, $brand_id, $idToDelete;
-    public $isOpen = false;
-    protected $queryString = ['create'];
-    public $create;
-
-    public function mount()
-    {
-        if ($this->create) {
-            $this->startCreate();
-            $this->dispatch('open-brand-modal');
-        }
-    }
 
     public function render()
     {
@@ -27,23 +16,7 @@ class BrandManager extends Component
         ]);
     }
 
-    public function startCreate()
-    {
-        $this->resetInputFields();
-        $this->openModal();
-    }
-
-    public function openModal()
-    {
-        $this->isOpen = true;
-    }
-
-    public function closeModal()
-    {
-        $this->isOpen = false;
-    }
-
-    private function resetInputFields()
+    public function resetInputFields()
     {
         $this->name = '';
         $this->brand_id = '';
@@ -63,7 +36,6 @@ class BrandManager extends Component
             $this->brand_id ? 'Marca Actualizada con éxito.' : 'Marca Creada con éxito.');
 
         $this->dispatch('close-modal');
-        $this->closeModal();
         $this->resetInputFields();
     }
 
@@ -72,8 +44,8 @@ class BrandManager extends Component
         $brand = Brand::findOrFail($id);
         $this->brand_id = $id;
         $this->name = $brand->name;
-
-        $this->openModal();
+        
+        $this->dispatch('open-brand-modal');
     }
 
     public function confirmDelete($id)

@@ -8,17 +8,6 @@ use App\Models\Category;
 class CategoryManager extends Component
 {
     public $name, $category_id, $idToDelete;
-    public $isOpen = false;
-    protected $queryString = ['create'];
-    public $create;
-
-    public function mount()
-    {
-        if ($this->create) {
-            $this->startCreate();
-            $this->dispatch('open-category-modal');
-        }
-    }
 
     public function render()
     {
@@ -27,23 +16,7 @@ class CategoryManager extends Component
         ]);
     }
 
-    public function startCreate()
-    {
-        $this->resetInputFields();
-        $this->openModal();
-    }
-
-    public function openModal()
-    {
-        $this->isOpen = true;
-    }
-
-    public function closeModal()
-    {
-        $this->isOpen = false;
-    }
-
-    private function resetInputFields()
+    public function resetInputFields()
     {
         $this->name = '';
         $this->category_id = '';
@@ -63,7 +36,6 @@ class CategoryManager extends Component
             $this->category_id ? 'Categoría Actualizada con éxito.' : 'Categoría Creada con éxito.');
 
         $this->dispatch('close-modal');
-        $this->closeModal();
         $this->resetInputFields();
     }
 
@@ -73,7 +45,7 @@ class CategoryManager extends Component
         $this->category_id = $id;
         $this->name = $category->name;
 
-        $this->openModal();
+        $this->dispatch('open-category-modal');
     }
 
     public function confirmDelete($id)

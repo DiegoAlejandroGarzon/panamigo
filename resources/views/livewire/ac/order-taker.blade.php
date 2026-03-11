@@ -1,35 +1,173 @@
-<div class="intro-y grid grid-cols-12 gap-6 mt-5 bg-slate-100 p-2 rounded-lg">
+<div x-data="{
+    cart: [],
+    total: 0,
+    isCartOpen: false,
+
+    // Pan Modal (Price based)
+    showPanModal: false,
+    panAmount: '',
+    panProduct: null,
+
+    // Qty Modal (Quantity based)
+    showQtyModal: false,
+    tempQty: 1,
+    tempProduct: null,
+
+    addItem(product) {
+        if (product.name.toUpperCase() === 'PAN') {
+            this.panProduct = product;
+            this.panAmount = '';
+            this.showPanModal = true;
+            return;
+        }
+        this.tempProduct = product;
+        this.tempQty = 1;
+        this.showQtyModal = true;
+
+        // Focus quantity input after a small delay to allow modal to render
+        setTimeout(() => {
+            const input = document.getElementById('qtyInput');
+            if (input) {
+                input.focus();
+                input.select();
+            }
+        }, 100);
+    },
+
+    confirmQty() {
+        const qty = parseInt(this.tempQty);
+        if (isNaN(qty) || qty <= 0) return;
+
+        const product = this.tempProduct;
+        let existing = this.cart.find(i => i.id === product.id && !i.is_pan);
+
+        if (existing) {
+            existing.quantity += qty;
+            existing.subtotal = existing.quantity * parseFloat(product.price);
+        } else {
+            this.cart.push({
+                id: product.id,
+                name: product.name,
+                price: parseFloat(product.price),
+                quantity: qty,
+                subtotal: qty * parseFloat(product.price),
+                is_pan: false
+            });
+        }
+        this.calculateTotal();
+        this.showQtyModal = false;
+    },
+
+    addPan() {
+        if (!this.panAmount || this.panAmount <= 0) return;
+
+        this.cart.push({
+            id: this.panProduct.id,
+            name: this.panProduct.name,
+            price: parseFloat(this.panAmount),
+            quantity: 1,
+            subtotal: parseFloat(this.panAmount),
+            is_pan: true
+        });
+
+        this.calculateTotal();
+        this.showPanModal = false;
+    },
+
+    increase(id, is_pan) {
+        if (is_pan) return;
+        let item = this.cart.find(i => i.id === id && !i.is_pan);
+        if (item) {
+            item.quantity++;
+            item.subtotal = item.quantity * item.price;
+            this.calculateTotal();
+        }
+    },
+
+    decrease(id, is_pan) {
+        let index = this.cart.findIndex(i => i.id === id && i.is_pan === is_pan);
+        if (index !== -1) {
+            let item = this.cart[index];
+            if (item.quantity > 1 && !item.is_pan) {
+                item.quantity--;
+                item.subtotal = item.quantity * item.price;
+            } else {
+                this.cart.splice(index, 1);
+            }
+            this.calculateTotal();
+        }
+    },
+
+    calculateTotal() {
+        this.total = this.cart.reduce((sum, i) => sum + i.subtotal, 0);
+    },
+
+    submitOrder() {
+        if (this.cart.length === 0) return;
+        $wire.sendToCashier(this.cart, this.total);
+    },
+
+    init() {
+        window.addEventListener('order-sent', () => {
+            this.cart = [];
+            this.total = 0;
+            this.isCartOpen = false;
+        });
+    }
+}"
+    class="intro-y grid grid-cols-12 gap-2 mt-2 bg-slate-100 p-1 md:p-2 rounded-lg relative overflow-hidden">
+
+    <!-- Filters Header -->
+    <div class="col-span-12 intro-y box p-3 mb-2 flex flex-col md:flex-row gap-2">
+        <div class="flex-1">
+            <x-base.form-input wire:model.live.debounce.300ms="search" type="text" class="w-full"
+                placeholder="🔍 Buscar productos..." />
+        </div>
+        <div class="grid grid-cols-2 gap-2 w-full md:w-auto">
+            <x-base.form-select wire:model.live="categoryId" class="text-xs">
+                <option value="">📁 Categoría (Todas)</option>
+                @foreach ($categories as $category)
+                    <option value="{{ $category->id }}">{{ $category->name }}</option>
+                @endforeach
+            </x-base.form-select>
+            <x-base.form-select wire:model.live="brandId" class="text-xs">
+                <option value="">🏷️ Marca (Todas)</option>
+                @foreach ($brands as $brand)
+                    <option value="{{ $brand->id }}">{{ $brand->name }}</option>
+                @endforeach
+            </x-base.form-select>
+        </div>
+    </div>
+
     <!-- Products Grid -->
     <div class="col-span-12 lg:col-span-8 flex flex-col">
-        <div class="intro-y box p-4 mb-4">
-            <x-base.form-input wire:model.live="search" type="text" class="w-full" placeholder="Buscar productos..." />
-        </div>
-
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 overflow-y-auto" style="max-height: 70vh;">
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 overflow-y-auto pr-1"
+            style="max-height: calc(100vh - 200px); scrollbar-width: thin;">
             @foreach ($products as $product)
-                <div wire:click="addToCart({{ $product->id }})"
-                    class="intro-y box cursor-pointer hover:shadow-lg transition transform hover:-translate-y-1 p-3 flex flex-col items-center text-center {{ strtoupper($product->name) == 'PAN' ? 'border-2 border-primary bg-primary/5' : '' }}">
+                <div @click="addItem({ id: {{ $product->id }}, name: '{{ $product->name }}', price: {{ $product->price }} })"
+                    class="intro-y box cursor-pointer hover:shadow-lg transition transform active:scale-95 p-2 flex flex-col items-center text-center {{ strtoupper($product->name) == 'PAN' ? 'border-2 border-primary bg-primary/5' : 'bg-white' }} rounded-xl">
                     <div
-                        class="w-24 h-24 bg-slate-200 rounded-md mb-2 flex items-center justify-center text-slate-400 overflow-hidden relative">
+                        class="w-full aspect-square bg-slate-100 rounded-lg mb-1 flex items-center justify-center text-slate-300 overflow-hidden relative">
                         @if ($product->provisional_image)
                             <img src="{{ $product->provisional_image }}" class="w-full h-full object-cover">
                         @else
-                            <x-base.lucide icon="Image" class="w-10 h-10" />
+                            <x-base.lucide icon="Image" class="w-8 h-8 opacity-20" />
                         @endif
                         @if (strtoupper($product->name) == 'PAN')
-                            <div class="absolute inset-0 bg-primary/10 flex items-center justify-center">
+                            <div class="absolute top-1 right-1">
                                 <span
-                                    class="bg-primary text-white text-[10px] px-2 py-0.5 rounded-full font-bold uppercase">Variado</span>
+                                    class="bg-primary text-white text-[8px] px-1.5 py-0.5 rounded-full font-bold uppercase">Variado</span>
                             </div>
                         @endif
                     </div>
-                    <h3 class="font-medium text-sm text-slate-800 leading-tight h-10 overflow-hidden">
+                    <h3 class="font-extrabold text-[13px] text-slate-900 leading-tight h-8 overflow-hidden uppercase">
                         {{ $product->name }}</h3>
-                    <div class="text-success font-bold mt-1">
+                    <div
+                        class="text-success font-black text-xs mt-1 bg-success/10 px-2 py-0.5 rounded-full border border-success/20">
                         @if (strtoupper($product->name) == 'PAN')
-                            PRECIO VARIABLE
+                            VARIAR PRECIO
                         @else
-                            ${{ number_format($product->price, 2) }}
+                            ${{ number_format($product->price, 0) }}
                         @endif
                     </div>
                 </div>
@@ -37,87 +175,169 @@
         </div>
     </div>
 
+    <!-- Mobile Cart Toggle -->
+    <div class="fixed bottom-4 right-4 lg:hidden z-50">
+        <button @click="isCartOpen = !isCartOpen"
+            class="bg-primary text-white p-4 rounded-full shadow-2xl flex items-center gap-2 font-bold animate-bounce">
+            <x-base.lucide icon="ShoppingCart" class="w-6 h-6" />
+            <span class="text-xs bg-white text-primary px-2 py-1 rounded-full text-center min-w-[20px]"
+                x-text="cart.length"></span>
+        </button>
+    </div>
+
     <!-- Cart Sidebar -->
-    <div class="col-span-12 lg:col-span-4 flex flex-col h-full">
-        <div class="intro-y box flex flex-col h-full overflow-hidden shadow-xl border-l border-slate-200">
-            <div class="p-4 bg-primary text-white font-bold flex justify-between items-center rounded-t-lg">
+    <div class="col-span-12 lg:col-span-4 lg:flex flex-col"
+        :class="isCartOpen ? 'fixed inset-0 z-[100] bg-white lg:relative lg:bg-transparent lg:z-10' : 'hidden lg:flex'">
+        <div class="intro-y box flex flex-col h-full overflow-hidden shadow-2xl lg:shadow-xl border-l border-slate-200">
+            <div class="p-4 bg-primary text-white font-bold flex justify-between items-center lg:rounded-t-lg">
                 <span class="flex items-center"><x-base.lucide icon="ShoppingCart" class="mr-2 h-5 w-5" /> Pedido
                     Actual</span>
-                <span class="text-lg">Total: ${{ number_format($total, 2) }}</span>
+                <div class="flex items-center gap-3">
+                    <span class="text-xl" x-text="'$' + new Intl.NumberFormat().format(total)">$0</span>
+                    <button @click="isCartOpen = false" class="lg:hidden">
+                        <x-base.lucide icon="X" class="w-6 h-6" />
+                    </button>
+                </div>
             </div>
 
-            <div class="flex-1 overflow-y-auto p-4 space-y-3 min-h-[400px]">
-                @forelse($cart as $id => $item)
-                    <div class="intro-x flex justify-between items-center border-b border-slate-100 pb-3">
-                        <div class="flex-1">
-                            <div class="font-bold text-slate-700">{{ $item['name'] }}</div>
-                            <div class="text-sm text-slate-500">${{ number_format($item['price'], 2) }} x
-                                {{ $item['quantity'] }}</div>
+            <div class="flex-1 overflow-y-auto p-3 space-y-2 min-h-[300px] bg-white text-slate-800">
+                <template x-for="(item, index) in cart" :key="index">
+                    <div
+                        class="intro-x flex justify-between items-center border border-slate-100 p-2 rounded-lg bg-slate-50 shadow-sm">
+                        <div class="flex-1 pr-2">
+                            <div class="font-black text-slate-800 text-[13px] leading-tight uppercase"
+                                x-text="item.name"></div>
+                            <div class="text-[11px] text-slate-500 font-bold mt-1">
+                                <span class="text-primary"
+                                    x-text="'$' + new Intl.NumberFormat().format(item.price)"></span> x <span
+                                    x-text="item.quantity"></span>
+                            </div>
                         </div>
-                        <div class="flex items-center space-x-2">
-                            @if (!($item['is_pan'] ?? false))
-                                <x-base.button wire:click="decreaseQty({{ $id }})" size="sm"
-                                    variant="outline-secondary" class="w-8 h-8 p-0">-</x-base.button>
-                                <span class="font-medium w-6 text-center">{{ $item['quantity'] }}</span>
-                                <x-base.button wire:click="increaseQty({{ $id }})" size="sm"
-                                    variant="outline-secondary" class="w-8 h-8 p-0">+</x-base.button>
-                            @else
-                                <span class="text-xs bg-slate-200 px-2 py-1 rounded">VALOR FIJO</span>
-                            @endif
+                        <div class="flex items-center gap-1">
+                            <template x-if="!item.is_pan">
+                                <div class="flex items-center gap-1">
+                                    <button @click="decrease(item.id, false)"
+                                        class="w-7 h-7 bg-white border border-slate-200 rounded flex items-center justify-center font-bold text-red-500">-</button>
+                                    <span class="font-black text-sm w-5 text-center text-slate-700"
+                                        x-text="item.quantity"></span>
+                                    <button @click="increase(item.id, false)"
+                                        class="w-7 h-7 bg-white border border-slate-200 rounded flex items-center justify-center font-bold text-green-500">+</button>
+                                </div>
+                            </template>
+                            <template x-if="item.is_pan">
+                                <div class="flex items-center">
+                                    <span
+                                        class="text-[9px] bg-primary/10 text-primary border border-primary/20 px-2 py-1 rounded-full font-bold">ABIERTO</span>
+                                    <button @click="decrease(item.id, true)" class="ml-2 text-danger">
+                                        <x-base.lucide icon="Trash2" class="w-4 h-4" />
+                                    </button>
+                                </div>
+                            </template>
                         </div>
-                        <div class="font-bold ml-4 text-slate-800 w-20 text-right">
-                            ${{ number_format($item['subtotal'], 2) }}</div>
+                        <div class="font-black ml-2 text-slate-900 text-xs w-20 text-right"
+                            x-text="'$' + new Intl.NumberFormat().format(item.subtotal)">
+                        </div>
                     </div>
-                @empty
-                    <div class="flex flex-col items-center justify-center text-slate-400 mt-10">
-                        <x-base.lucide icon="ShoppingBag" class="w-16 h-16 mb-2 opacity-20" />
-                        <p>El carrito está vacío</p>
-                    </div>
-                @endforelse
+                </template>
+
+                <div x-show="cart.length === 0"
+                    class="flex flex-col items-center justify-center text-slate-300 mt-20 pt-10 border-t border-dashed border-slate-200">
+                    <x-base.lucide icon="ShoppingBag" class="w-20 h-20 mb-4 opacity-10" />
+                    <p class="font-bold text-lg">El carrito está vacío</p>
+                    <p class="text-xs uppercase mt-1">Agrega productos para comenzar</p>
+                </div>
             </div>
 
-            <div class="p-4 border-t border-slate-200 bg-slate-50">
+            <div class="p-4 border-t border-slate-200 bg-slate-100">
                 @if (session()->has('message'))
-                    <div class="alert alert-success show mb-3 text-center">
+                    <div
+                        class="alert alert-success mt-1 mb-3 text-center py-2 text-xs font-bold text-white bg-green-500 rounded-lg">
                         {{ session('message') }}
                     </div>
                 @endif
-                <x-base.button wire:click="sendToCashier" variant="primary" class="w-full h-12 text-lg shadow-md"
-                    :disabled="empty($cart)">
+
+                <button @click="submitOrder()" :disabled="cart.length === 0"
+                    :class="cart.length > 0 ? 'bg-primary border-primary text-white shadow-xl' :
+                        'bg-slate-300 border-slate-300 text-slate-500 cursor-not-allowed'"
+                    class="w-full h-14 text-xl font-black rounded-xl flex items-center justify-center gap-3 transition-all">
+                    <x-base.lucide icon="Send" class="w-6 h-6" />
                     ENVIAR A CAJA
-                </x-base.button>
+                </button>
             </div>
         </div>
     </div>
 
-    <!-- Pan Modal -->
-    @if ($showPanModal)
-        <div class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-            <div class="intro-y box w-full max-w-sm bg-white shadow-2xl rounded-xl">
-                <div class="p-5 border-b border-slate-200 flex justify-between items-center text-primary font-bold">
-                    <h2>VALOR TOTAL DEL PAN</h2>
-                    <button wire:click="closePanModal" class="text-slate-400 hover:text-slate-600">
-                        <x-base.lucide icon="X" class="w-6 h-6" />
-                    </button>
-                </div>
-                <div class="p-6">
-                    <label class="font-bold text-xs uppercase text-slate-500 mb-2 block">Digite el valor total del pan
-                        despachado</label>
-                    <div class="relative">
-                        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-lg font-bold text-slate-400">$</span>
-                        <x-base.form-input type="number" wire:model="panAmount" class="text-2xl font-bold pl-8 py-3"
-                            autofocus />
-                    </div>
-                    @error('panAmount')
-                        <span class="text-danger mt-1">{{ $message }}</span>
-                    @enderror
-                </div>
-                <div class="p-5 flex gap-2">
-                    <x-base.button wire:click="closePanModal" variant="outline-secondary"
-                        class="flex-1">CANCELAR</x-base.button>
-                    <x-base.button wire:click="addPanToCart" variant="primary" class="flex-1">AGREGAR</x-base.button>
-                </div>
+    <!-- Select Quantity Modal -->
+    <div x-show="showQtyModal"
+        class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md" x-cloak>
+        <div class="intro-y box w-full max-w-sm bg-white shadow-2xl rounded-2xl overflow-hidden border border-white/20">
+            <div class="p-5 border-b border-slate-100 flex justify-between items-center text-primary bg-slate-50">
+                <h2 class="font-black uppercase tracking-tight" x-text="tempProduct ? tempProduct.name : ''"></h2>
+                <button @click="showQtyModal = false" class="text-slate-400 hover:text-slate-600 p-1">
+                    <x-base.lucide icon="X" class="w-6 h-6" />
+                </button>
             </div>
+            <form @submit.prevent="confirmQty()" class="p-6">
+                <label
+                    class="font-black text-[10px] uppercase text-slate-400 mb-2 block tracking-widest text-center italic">Seleccione
+                    o digite la cantidad</label>
+
+                <div class="flex items-center justify-center gap-4 mb-6">
+                    <button type="button" @click="if(tempQty > 1) tempQty--"
+                        class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center text-3xl font-black text-danger shadow hover:bg-slate-200 transition">-</button>
+                    <input id="qtyInput" type="number" x-model="tempQty"
+                        class="w-24 text-center text-5xl font-black border-none focus:ring-0 text-slate-800"
+                        min="1" />
+                    <button type="button" @click="tempQty++"
+                        class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center text-3xl font-black text-success shadow hover:bg-slate-200 transition">+</button>
+                </div>
+
+                <div class="grid grid-cols-4 gap-2 mb-6">
+                    <template x-for="q in [1, 2, 3, 4, 5, 10, 12, 15]">
+                        <button type="button" @click="tempQty = q"
+                            class="py-3 bg-slate-50 border border-slate-200 rounded-lg font-black text-slate-600 hover:bg-primary hover:text-white transition"
+                            :class="tempQty == q ? 'bg-primary text-white border-primary' : ''"
+                            x-text="q"></button>
+                    </template>
+                </div>
+
+                <div class="flex gap-3">
+                    <button type="button" @click="showQtyModal = false"
+                        class="flex-1 py-4 font-bold bg-slate-100 rounded-xl text-slate-500">CANCELAR</button>
+                    <button type="submit"
+                        class="flex-1 py-4 font-black bg-primary text-white rounded-xl shadow-lg">CONFIRMAR</button>
+                </div>
+            </form>
         </div>
-    @endif
+    </div>
+
+    <!-- Pan Modal (Manual Price) -->
+    <div x-show="showPanModal"
+        class="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-md" x-cloak>
+        <div
+            class="intro-y box w-full max-w-sm bg-white shadow-2xl rounded-2xl overflow-hidden border border-white/20">
+            <div class="p-5 border-b border-slate-100 flex justify-between items-center text-primary bg-slate-50">
+                <h2 class="font-black uppercase tracking-tight">CANTIDAD EN PESOS ($)</h2>
+                <button @click="showPanModal = false" class="text-slate-400 hover:text-slate-600 p-1">
+                    <x-base.lucide icon="X" class="w-6 h-6" />
+                </button>
+            </div>
+            <form @submit.prevent="addPan()" class="p-6">
+                <label class="font-black text-[10px] uppercase text-slate-400 mb-2 block tracking-widest">Digite el
+                    total vendido</label>
+                <div class="relative">
+                    <span class="absolute left-4 top-1/2 -translate-y-1/2 text-2xl font-black text-slate-300">$</span>
+                    <input type="number" x-model="panAmount"
+                        class="w-full text-4xl font-black pl-10 py-5 rounded-xl border-2 border-slate-200 focus:border-primary transition-colors text-slate-800"
+                        autofocus placeholder="0" />
+                </div>
+                <div class="mt-6 flex gap-3">
+                    <button type="button" @click="showPanModal = false"
+                        class="flex-1 py-4 font-bold bg-slate-100 rounded-xl">CANCELAR</button>
+                    <button type="submit"
+                        class="flex-1 py-4 font-black bg-primary text-white rounded-xl shadow-lg">AGREGAR</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>

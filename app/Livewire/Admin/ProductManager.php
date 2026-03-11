@@ -4,11 +4,22 @@ namespace App\Livewire\Admin;
 
 use Livewire\Component;
 use App\Models\Product;
+use Livewire\WithFileUploads;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\ProductTemplateExport;
+use App\Imports\ProductImport;
 
 class ProductManager extends Component
 {
+    use WithFileUploads;
+
     public $products, $name, $price, $stock, $product_id, $provisional_image, $category_id, $brand_id, $idToDelete;
     public $isOpen = false;
+    
+    // Excel Import
+    public $excelFile;
+    public $importResults = null;
+    public $showImportModal = false;
 
     public function render()
     {
@@ -104,5 +115,41 @@ class ProductManager extends Component
             $this->idToDelete = null;
             $this->dispatch('close-delete-confirmation');
         }
+    }
+
+    // Excel Logic
+    public function downloadTemplate()
+    {
+        return Excel::download(new ProductTemplateExport, 'plantilla_productos_panamigo.xlsx');
+    }
+
+    public function openImportModal()
+    {
+        $this->importResults = null;
+        $this->excelFile = null;
+        $this->showImportModal = true;
+    }
+
+    public function closeImportModal()
+    {
+        $this->showImportModal = false;
+    }
+
+    public function importExcel()
+    {
+        $this->validate([
+            'excelFile' => 'required|mimes:xlsx,xls,csv|max:10240',
+        ]);
+
+        $import = new ProductImport;
+        Excel::import($import, $this->excelFile->getRealPath());
+
+        $this->importResults = $import->results;
+        
+        if ($this->importResults['success'] > 0) {
+            session()->flash('message', "Importación completada: {$this->importResults['success']} productos subidos.");
+        }
+        
+        $this->excelFile = null;
     }
 }

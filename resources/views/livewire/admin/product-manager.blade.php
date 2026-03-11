@@ -5,6 +5,13 @@
             <x-base.button variant="primary" class="mr-2 shadow-md" wire:click="create()">
                 Nuevo Producto
             </x-base.button>
+            <x-base.button variant="outline-primary" class="mr-2 shadow-md" wire:click="openImportModal">
+                <x-base.lucide class="mr-2 h-4 w-4" icon="FilePlus" /> Importar Excel
+            </x-base.button>
+            <a href="javascript:;" wire:click="downloadTemplate"
+                class="text-primary underline flex items-center ml-2 text-xs font-bold">
+                <x-base.lucide class="mr-1 h-3 w-3" icon="Download" /> Descargar Plantilla
+            </a>
             <div class="mx-auto hidden text-slate-500 md:block">
                 Mostrando {{ $products->count() }} productos
             </div>
@@ -164,8 +171,103 @@
         </x-base.dialog>
     @endteleport
 
+    <!-- BEGIN: Import Modal -->
+    @teleport('body')
+        <x-base.dialog id="import-modal" wire:ignore.self>
+            <x-base.dialog.panel class="p-0">
+                <div class="p-5 border-b border-slate-200">
+                    <h2 class="font-medium text-base">Importación Masiva de Productos</h2>
+                </div>
+                <div class="p-5">
+                    @if (!$importResults)
+                        <div class="p-4 bg-slate-50 rounded-lg border-2 border-dashed border-slate-200 text-center">
+                            <x-base.lucide class="mx-auto h-12 w-12 text-slate-400" icon="UploadCloud" />
+                            <div class="mt-2 text-slate-500">Seleccione el archivo Excel (.xlsx)</div>
+                            <input type="file" wire:model="excelFile" class="mt-4 w-full text-xs"
+                                accept=".xlsx, .xls">
+                            <div wire:loading wire:target="excelFile" class="mt-2 text-primary font-bold">Cargando
+                                archivo...</div>
+                        </div>
+
+                        <div class="mt-4 p-3 bg-primary/10 rounded text-xs text-primary">
+                            <strong>Instrucciones:</strong>
+                            <ul class="list-disc ml-4 mt-1">
+                                <li>Use la <a href="javascript:;" wire:click="downloadTemplate"
+                                        class="font-bold underline">plantilla oficial</a>.</li>
+                                <li>No modifique los encabezados de la Hoja 1.</li>
+                                <li>Consulte las Hojas 2 y 3 para ver ID de Categorías y Marcas.</li>
+                            </ul>
+                        </div>
+                    @else
+                        <div class="text-center">
+                            <div class="text-lg font-bold text-success">Proceso Finalizado</div>
+                            <div class="mt-2 flex justify-center gap-4">
+                                <div class="p-3 bg-success/10 rounded">
+                                    <div class="text-2xl font-black text-success">{{ $importResults['success'] }}</div>
+                                    <div class="text-[10px] uppercase font-bold">Exitosos</div>
+                                </div>
+                                <div class="p-3 bg-danger/10 rounded">
+                                    <div class="text-2xl font-black text-danger">{{ count($importResults['failed']) }}
+                                    </div>
+                                    <div class="text-[10px] uppercase font-bold">Fallidos</div>
+                                </div>
+                            </div>
+
+                            @if (count($importResults['failed']) > 0)
+                                <div class="mt-5 text-left">
+                                    <h4 class="font-bold text-danger mb-2">Reporte de Errores:</h4>
+                                    <div class="max-h-48 overflow-y-auto border rounded p-2">
+                                        @foreach ($importResults['failed'] as $error)
+                                            <div class="mb-2 text-xs border-b pb-1 last:border-0">
+                                                <span class="font-bold">Fila {{ $error['row'] }}:</span>
+                                                {{ $error['name'] }}
+                                                <ul class="text-danger mt-1">
+                                                    @foreach ($error['errors'] as $msg)
+                                                        <li>• {{ $msg }}</li>
+                                                    @endforeach
+                                                </ul>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @endif
+                        </div>
+                    @endif
+                </div>
+                <div class="p-5 border-t border-slate-200 flex justify-end">
+                    <x-base.button variant="outline-secondary" class="mr-1" wire:click="closeImportModal">
+                        Cerrar
+                    </x-base.button>
+                    @if (!$importResults)
+                        <x-base.button variant="primary" wire:click="importExcel" wire:loading.attr="disabled"
+                            :disabled="!$excelFile">
+                            Comenzar Importación
+                        </x-base.button>
+                    @endif
+                </div>
+            </x-base.dialog.panel>
+        </x-base.dialog>
+    @endteleport
+    <!-- END: Import Modal -->
+
     <script>
-        document.addEventListener('livewire:init', () => {
+        document.addEventListener('livewire:initialized', () => {
+            Livewire.on('open-import-modal', () => {
+                const el = document.querySelector("#import-modal");
+                if (el) {
+                    const modal = tailwind.Modal.getOrCreateInstance(el);
+                    modal.show();
+                }
+            });
+
+            Livewire.on('close-import-modal', () => {
+                const el = document.querySelector("#import-modal");
+                if (el) {
+                    const modal = tailwind.Modal.getOrCreateInstance(el);
+                    modal.hide();
+                }
+            });
+
             Livewire.on('open-delete-confirmation', (event) => {
                 const el = document.querySelector("#delete-confirmation-modal");
                 if (el) {

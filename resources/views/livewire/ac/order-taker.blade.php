@@ -18,6 +18,7 @@
     cart: [],
     total: 0,
     isCartOpen: false,
+    showProfileMenu: false,
 
     // ... remaining state ...
     showPanModal: false,
@@ -126,9 +127,72 @@
 
     <!-- Filters Header (Sticky) -->
     <div class="w-full bg-white p-2 mb-1 flex flex-col gap-1.5 shadow-sm sticky top-0 z-[10]">
-        <div class="w-full">
-            <x-base.form-input x-model="search" type="text" class="w-full text-xs h-8 px-2"
-                placeholder="🔍 Buscar productos..." />
+        <div class="flex items-center gap-2">
+            <div class="flex-1">
+                <x-base.form-input x-model="search" type="text" class="w-full text-xs h-8 px-2"
+                    placeholder="🔍 Buscar productos..." />
+            </div>
+            <!-- Profile Info / Logout -->
+            <div class="relative" @click.away="showProfileMenu = false">
+                <button @click="showProfileMenu = !showProfileMenu"
+                    class="flex items-center justify-center h-8 w-8 rounded-full bg-slate-100 hover:bg-slate-200 transition overflow-hidden border border-slate-200 shadow-sm relative z-20">
+                    <template x-if="{{ auth()->user()->photo ? 'true' : 'false' }}">
+                        <img src="{{ auth()->user()->photo ? asset('storage/' . auth()->user()->photo) : '' }}"
+                            class="w-full h-full object-cover">
+                    </template>
+                    <template x-if="{{ !auth()->user()->photo ? 'true' : 'false' }}">
+                        <x-base.lucide icon="User" class="w-5 h-5 text-slate-500" />
+                    </template>
+                </button>
+
+                <!-- Dropdown Menu -->
+                <div x-show="showProfileMenu" x-transition:enter="transition ease-out duration-100"
+                    x-transition:enter-start="opacity-0 transform scale-95"
+                    x-transition:enter-end="opacity-100 transform scale-100"
+                    class="absolute right-0 mt-2 w-56 bg-primary rounded-xl shadow-2xl z-[100] border border-white/10 overflow-hidden"
+                    x-cloak>
+
+                    <!-- Header -->
+                    <div class="p-4 border-b border-white/10">
+                        <div class="font-black text-white text-sm uppercase leading-tight">{{ auth()->user()->name }}
+                        </div>
+                        <div class="text-[10px] text-white/60 font-bold mt-0.5 tracking-widest uppercase">
+                            {{ auth()->user()->getRoleNames()->first() }}</div>
+                    </div>
+
+                    <!-- Options -->
+                    <div class="p-1.5 space-y-0.5">
+                        <a href="/admin/profile"
+                            class="flex items-center gap-3 px-3 py-2.5 text-white hover:bg-white/5 rounded-lg transition group">
+                            <x-base.lucide icon="User" class="w-4 h-4 text-white/60 group-hover:text-white" />
+                            <span class="text-xs font-bold uppercase tracking-wide">Perfil</span>
+                        </a>
+                        <a href="/admin/profile?tab=password"
+                            class="flex items-center gap-3 px-3 py-2.5 text-white hover:bg-white/5 rounded-lg transition group">
+                            <x-base.lucide icon="Lock" class="w-4 h-4 text-white/60 group-hover:text-white" />
+                            <span class="text-xs font-bold uppercase tracking-wide">Cambiar Contraseña</span>
+                        </a>
+                        <a href="/admin/profile?tab=photo"
+                            class="flex items-center gap-3 px-3 py-2.5 text-white hover:bg-white/5 rounded-lg transition group">
+                            <x-base.lucide icon="Camera" class="w-4 h-4 text-white/60 group-hover:text-white" />
+                            <span class="text-xs font-bold uppercase tracking-wide">Cambiar Foto Perfil</span>
+                        </a>
+                    </div>
+
+                    <!-- Footer -->
+                    <div class="p-1.5 border-t border-white/10">
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit"
+                                class="w-full flex items-center gap-3 px-3 py-2.5 text-white hover:bg-danger/20 rounded-lg transition group">
+                                <x-base.lucide icon="ToggleRight"
+                                    class="w-4 h-4 text-white/60 group-hover:text-danger" />
+                                <span class="text-xs font-bold uppercase tracking-wide">Cerrar sesión</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="grid grid-cols-2 gap-1.5 w-full">
             <x-base.form-select x-model="categoryId" class="text-[10px] h-8 px-1 py-0">

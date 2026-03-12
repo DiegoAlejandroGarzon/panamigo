@@ -19,7 +19,10 @@ class Terminal extends Component
             ->get();
 
         return view('livewire.cashier.terminal', [
-            'pendingOrders' => $pendingOrders
+            'pendingOrders' => $pendingOrders,
+            'allProducts' => \App\Models\Product::with(['category', 'brand'])->get(),
+            'categories' => \App\Models\Category::all(),
+            'brands' => \App\Models\Brand::all(),
         ]);
     }
 
@@ -116,6 +119,30 @@ class Terminal extends Component
         ]);
         
         $this->showZModal = false;
+    }
+
+    public function createOrderFromTerminal($cart, $total)
+    {
+        if (empty($cart)) return;
+
+        $order = Order::create([
+            'user_id' => auth()->id(),
+            'total' => $total,
+            'status' => 'pending',
+            'customer_served_by' => 'Caja (POS Integrado)',
+        ]);
+
+        foreach ($cart as $item) {
+            \App\Models\OrderItem::create([
+                'order_id' => $order->id,
+                'product_id' => $item['id'],
+                'quantity' => $item['quantity'],
+                'subtotal' => $item['subtotal']
+            ]);
+        }
+
+        session()->flash('message', 'Pedido #' . $order->id . ' creado y listo para cobrar.');
+        $this->dispatch('order-sent');
     }
 
     public function openDrawerOnly()

@@ -35,6 +35,7 @@
                 <x-base.table.thead>
                     <x-base.table.tr>
                         <x-base.table.th class="whitespace-nowrap border-b-0">ID</x-base.table.th>
+                        <x-base.table.th class="whitespace-nowrap border-b-0">IMAGEN</x-base.table.th>
                         <x-base.table.th class="whitespace-nowrap border-b-0">PRODUCTO</x-base.table.th>
                         <x-base.table.th class="whitespace-nowrap border-b-0">CATEGORÍA</x-base.table.th>
                         <x-base.table.th class="whitespace-nowrap border-b-0">MARCA</x-base.table.th>
@@ -48,6 +49,22 @@
                             <x-base.table.td
                                 class="box w-20 rounded-l-none rounded-r-none border-x-0 shadow-[5px_3px_5px_#00000005] first:rounded-l-[0.6rem] first:border-l last:rounded-r-[0.6rem] last:border-r dark:bg-darkmode-600">
                                 {{ $product->id }}
+                            </x-base.table.td>
+                            <x-base.table.td
+                                class="box w-20 rounded-l-none rounded-r-none border-x-0 shadow-[5px_3px_5px_#00000005] first:rounded-l-[0.6rem] first:border-l last:rounded-r-[0.6rem] last:border-r dark:bg-darkmode-600">
+                                <div class="flex">
+                                    <div class="h-10 w-10 image-fit zoom-in">
+                                        @if ($product->provisional_image)
+                                            <img class="rounded-full shadow-[0px_0px_0px_2px_#fff,_1px_1px_5px_rgba(0,0,0,0.32)]"
+                                                src="{{ $product->provisional_image }}" alt="{{ $product->name }}">
+                                        @else
+                                            <div
+                                                class="h-10 w-10 flex items-center justify-center bg-slate-100 rounded-full text-slate-400">
+                                                <x-base.lucide icon="Image" class="w-5 h-5" />
+                                            </div>
+                                        @endif
+                                    </div>
+                                </div>
                             </x-base.table.td>
                             <x-base.table.td
                                 class="box rounded-l-none rounded-r-none border-x-0 shadow-[5px_3px_5px_#00000005] first:rounded-l-[0.6rem] first:border-l last:rounded-r-[0.6rem] last:border-r dark:bg-darkmode-600">
@@ -95,6 +112,48 @@
                     </h2>
                 </x-base.dialog.title>
                 <x-base.dialog.description class="grid grid-cols-12 gap-4 gap-y-3 text-slate-800">
+                    <div class="col-span-12">
+                        <x-base.form-label for="photo">Foto del Producto (Opcional)</x-base.form-label>
+                        <div
+                            class="mt-2 flex flex-col items-center justify-center border-2 border-dashed border-slate-200 rounded-lg p-5 bg-slate-50">
+                            @if ($photo)
+                                <div class="mb-4 relative">
+                                    <img src="{{ $photo->temporaryUrl() }}"
+                                        class="w-32 h-32 object-cover rounded-lg shadow-md border-2 border-white">
+                                    <button @click="$wire.set('photo', null)"
+                                        class="absolute -top-2 -right-2 bg-danger text-white rounded-full p-1 shadow-lg">
+                                        <x-base.lucide icon="X" class="w-4 h-4" />
+                                    </button>
+                                </div>
+                            @elseif ($provisional_image)
+                                <div class="mb-4 relative">
+                                    <img src="{{ $provisional_image }}"
+                                        class="w-32 h-32 object-cover rounded-lg shadow-md border-2 border-white">
+                                    <div
+                                        class="absolute bottom-0 right-0 bg-primary text-white text-[8px] px-2 py-0.5 rounded-tl-lg font-bold">
+                                        ACTUAL</div>
+                                </div>
+                            @else
+                                <div class="mb-4 text-slate-400">
+                                    <x-base.lucide icon="Image" class="w-12 h-12 mx-auto" />
+                                    <p class="text-[10px] uppercase font-bold mt-1">Sin imagen</p>
+                                </div>
+                            @endif
+
+                            <input type="file" id="photo" wire:model="photo"
+                                class="text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 cursor-pointer"
+                                accept="image/*">
+
+                            <div wire:loading wire:target="photo"
+                                class="mt-2 text-primary text-[10px] font-bold italic animate-pulse">
+                                Procesando imagen...
+                            </div>
+                        </div>
+                        @error('photo')
+                            <span class="text-danger mt-2 text-xs font-bold">{{ $message }}</span>
+                        @enderror
+                    </div>
+
                     <div class="col-span-12 sm:col-span-12">
                         <x-base.form-label for="name">Nombre</x-base.form-label>
                         <x-base.form-input id="name" type="text" placeholder="Nombre del producto"
@@ -204,7 +263,8 @@
                                             <div
                                                 class="mb-3 text-[11px] border-b border-slate-200 pb-2 last:border-0 last:mb-0">
                                                 <div class="font-black text-slate-700 uppercase">Fila {{ $error['row'] }}:
-                                                    <span class="text-primary italic">{{ $error['name'] }}</span></div>
+                                                    <span class="text-primary italic">{{ $error['name'] }}</span>
+                                                </div>
                                                 <ul class="text-danger mt-1 font-bold">
                                                     @foreach ($error['errors'] as $msg)
                                                         <li>• {{ $msg }}</li>

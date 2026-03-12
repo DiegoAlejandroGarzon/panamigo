@@ -21,6 +21,20 @@ class RedirectIfAuthenticated
 
         foreach ($guards as $guard) {
             if (Auth::guard($guard)->check()) {
+                $user = Auth::guard($guard)->user();
+                
+                if ($user->hasRole('Atención al Cliente')) {
+                    return redirect('/pos/order');
+                }
+                
+                if ($user->hasRole('Cajera')) {
+                    return redirect('/pos/cashier');
+                }
+                
+                if ($user->hasRole('Admin') || $user->hasRole('super-admin')) {
+                    return redirect('/admin/dashboard');
+                }
+
                 return redirect(RouteServiceProvider::HOME);
             }
         }

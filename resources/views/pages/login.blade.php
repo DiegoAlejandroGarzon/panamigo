@@ -2,11 +2,20 @@
 
 @section('head')
     <title>PANAMIGO</title>
+    <style>
+        body {
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow-x: hidden !important;
+            background-color: rgb(30 58 138 / var(--tw-bg-opacity)) !important;
+            /* bg-primary */
+        }
+    </style>
 @endsection
 
 @section('content')
     <div @class([
-        'p-3 sm:px-8 relative h-screen lg:overflow-hidden bg-primary xl:bg-white dark:bg-darkmode-800 xl:dark:bg-darkmode-600',
+        'p-0 relative min-h-screen w-screen overflow-hidden bg-primary xl:bg-white dark:bg-darkmode-800 xl:dark:bg-darkmode-600',
         'before:hidden before:xl:block before:content-[\'\'] before:w-[57%] before:-mt-[28%] before:-mb-[16%] before:-ml-[13%] before:absolute before:inset-y-0 before:left-0 before:transform before:rotate-[-4.5deg] before:bg-primary/20 before:rounded-[100%] before:dark:bg-darkmode-400',
         'after:hidden after:xl:block after:content-[\'\'] after:w-[57%] after:-mt-[20%] after:-mb-[13%] after:-ml-[13%] after:absolute after:inset-y-0 after:left-0 after:transform after:rotate-[-4.5deg] after:bg-primary after:rounded-[100%] after:dark:bg-darkmode-700',
     ])>
@@ -29,7 +38,7 @@
                 </div>
                 <!-- END: Login Info -->
                 <!-- BEGIN: Login Form -->
-                <div class="my-10 flex h-screen py-5 xl:my-0 xl:h-auto xl:py-0">
+                <div class="my-10 flex min-h-screen py-5 xl:my-0 xl:h-auto xl:py-0">
                     <div
                         class="mx-auto my-auto w-full rounded-md bg-white px-5 py-8 shadow-md dark:bg-darkmode-600 sm:w-3/4 sm:px-8 lg:w-2/4 xl:ml-20 xl:w-auto xl:bg-transparent xl:p-0 xl:shadow-none">
                         <h2 class="intro-x text-center text-2xl font-bold xl:text-left xl:text-3xl">

@@ -10,26 +10,10 @@ use Illuminate\Support\Facades\Auth;
 
 class OrderTaker extends Component
 {
-    public $search = '';
-    public $categoryId = null;
-    public $brandId = null;
-
-    protected $updatesQueryString = ['search', 'categoryId', 'brandId'];
-
     public function render()
     {
-        $query = Product::where('name', 'like', '%' . $this->search . '%');
-
-        if ($this->categoryId) {
-            $query->where('category_id', $this->categoryId);
-        }
-
-        if ($this->brandId) {
-            $query->where('brand_id', $this->brandId);
-        }
-
         return view('livewire.ac.order-taker', [
-            'products' => $query->get(),
+            'allProducts' => Product::with(['category', 'brand'])->get(),
             'categories' => \App\Models\Category::all(),
             'brands' => \App\Models\Brand::all(),
         ])->layout('layouts.pos');

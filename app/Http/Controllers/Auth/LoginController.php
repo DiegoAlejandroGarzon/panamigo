@@ -21,11 +21,30 @@ class LoginController extends Controller
     use AuthenticatesUsers;
 
     /**
-     * Where to redirect users after login.
+     * The user has been authenticated.
      *
-     * @var string
+     * @param  \Illuminate\Http\Request  $request
+     * @param  mixed  $user
+     * @return mixed
      */
-    protected $redirectTo = '/home';
+    protected function authenticated(\Illuminate\Http\Request $request, $user)
+    {
+        \Log::info('User Logged In: ' . $user->email . ' with roles: ' . implode(', ', $user->getRoleNames()->toArray()));
+
+        if ($user->hasRole('Atención al Cliente')) {
+            return redirect('/pos/order');
+        }
+        
+        if ($user->hasRole('Cajera')) {
+            return redirect('/pos/cashier');
+        }
+        
+        if ($user->hasRole('Admin') || $user->hasRole('super-admin')) {
+            return redirect('/admin/dashboard');
+        }
+
+        return redirect('/home');
+    }
 
     /**
      * Create a new controller instance.

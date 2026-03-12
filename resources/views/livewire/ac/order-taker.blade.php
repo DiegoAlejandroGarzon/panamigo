@@ -1,14 +1,28 @@
 <div x-data="{
+    allProducts: @js($allProducts),
+    search: '',
+    categoryId: '',
+    brandId: '',
+
+    get filteredProducts() {
+        if (!this.allProducts) return [];
+        return this.allProducts.filter(p => {
+            const s = this.search.toLowerCase();
+            const matchesSearch = p.name.toLowerCase().includes(s);
+            const matchesCategory = this.categoryId === '' || p.category_id == this.categoryId;
+            const matchesBrand = this.brandId === '' || p.brand_id == this.brandId;
+            return matchesSearch && matchesCategory && matchesBrand;
+        });
+    },
+
     cart: [],
     total: 0,
     isCartOpen: false,
 
-    // Pan Modal (Price based)
+    // ... remaining state ...
     showPanModal: false,
     panAmount: '',
     panProduct: null,
-
-    // Qty Modal (Quantity based)
     showQtyModal: false,
     tempQty: 1,
     tempProduct: null,
@@ -23,8 +37,6 @@
         this.tempProduct = product;
         this.tempQty = 1;
         this.showQtyModal = true;
-
-        // Focus quantity input after a small delay to allow modal to render
         setTimeout(() => {
             const input = document.getElementById('qtyInput');
             if (input) {
@@ -37,10 +49,8 @@
     confirmQty() {
         const qty = parseInt(this.tempQty);
         if (isNaN(qty) || qty <= 0) return;
-
         const product = this.tempProduct;
         let existing = this.cart.find(i => i.id === product.id && !i.is_pan);
-
         if (existing) {
             existing.quantity += qty;
             existing.subtotal = existing.quantity * parseFloat(product.price);
@@ -60,7 +70,6 @@
 
     addPan() {
         if (!this.panAmount || this.panAmount <= 0) return;
-
         this.cart.push({
             id: this.panProduct.id,
             name: this.panProduct.name,
@@ -69,7 +78,6 @@
             subtotal: parseFloat(this.panAmount),
             is_pan: true
         });
-
         this.calculateTotal();
         this.showPanModal = false;
     },
@@ -119,18 +127,18 @@
     <!-- Filters Header (Sticky) -->
     <div class="w-full bg-white p-2 mb-1 flex flex-col gap-1.5 shadow-sm sticky top-0 z-[10]">
         <div class="w-full">
-            <x-base.form-input wire:model.live.debounce.300ms="search" type="text" class="w-full text-xs h-8 px-2"
+            <x-base.form-input x-model="search" type="text" class="w-full text-xs h-8 px-2"
                 placeholder="🔍 Buscar productos..." />
         </div>
         <div class="grid grid-cols-2 gap-1.5 w-full">
-            <x-base.form-select wire:model.live="categoryId" class="text-[10px] h-8 px-1 py-0">
-                <option value="">📁 Categoría</option>
+            <x-base.form-select x-model="categoryId" class="text-[10px] h-8 px-1 py-0">
+                <option value="">📁 Todas las Categorías</option>
                 @foreach ($categories as $category)
                     <option value="{{ $category->id }}">{{ $category->name }}</option>
                 @endforeach
             </x-base.form-select>
-            <x-base.form-select wire:model.live="brandId" class="text-[10px] h-8 px-1 py-0">
-                <option value="">🏷️ Marca</option>
+            <x-base.form-select x-model="brandId" class="text-[10px] h-8 px-1 py-0">
+                <option value="">🏷️ Todas las Marcas</option>
                 @foreach ($brands as $brand)
                     <option value="{{ $brand->id }}">{{ $brand->name }}</option>
                 @endforeach
@@ -144,36 +152,32 @@
         <div class="w-full lg:w-2/3 flex flex-col">
             <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 overflow-y-auto pr-1 pb-20"
                 style="max-height: calc(100vh - 110px); scrollbar-width: thin;">
-                @foreach ($products as $product)
-                    <div @click="addItem({ id: {{ $product->id }}, name: '{{ $product->name }}', price: {{ $product->price }} })"
-                        class=" box cursor-pointer hover:shadow-lg transition transform active:scale-95 p-2 flex flex-col items-center text-center {{ strtoupper($product->name) == 'PAN' ? 'border-2 border-primary bg-primary/5' : 'bg-white' }} rounded-xl">
+                <template x-for="product in filteredProducts" :key="product.id">
+                    <div @click="addItem(product)"
+                        class="box cursor-pointer hover:shadow-lg transition transform active:scale-95 p-2 flex flex-col items-center text-center rounded-xl"
+                        :class="product.name.toUpperCase() == 'PAN' ? 'border-2 border-primary bg-primary/5' : 'bg-white'">
                         <div
                             class="w-full aspect-square bg-slate-100 rounded-lg mb-1 flex items-center justify-center text-slate-300 overflow-hidden relative">
-                            @if ($product->provisional_image)
-                                <img src="{{ $product->provisional_image }}" class="w-full h-full object-cover">
-                            @else
+                            <template x-if="product.provisional_image">
+                                <img :src="product.provisional_image" class="w-full h-full object-cover">
+                            </template>
+                            <template x-if="!product.provisional_image">
                                 <x-base.lucide icon="Image" class="w-8 h-8 opacity-20" />
-                            @endif
-                            @if (strtoupper($product->name) == 'PAN')
+                            </template>
+                            <template x-if="product.name.toUpperCase() == 'PAN'">
                                 <div class="absolute top-1 right-1">
                                     <span
                                         class="bg-primary text-white text-[8px] px-1.5 py-0.5 rounded-full font-bold uppercase">Variado</span>
                                 </div>
-                            @endif
+                            </template>
                         </div>
-                        <h3
-                            class="font-extrabold text-[13px] text-slate-900 leading-tight h-8 overflow-hidden uppercase">
-                            {{ $product->name }}</h3>
-                        <div
-                            class="text-success font-black text-xs mt-1 bg-success/10 px-2 py-0.5 rounded-full border border-success/20">
-                            @if (strtoupper($product->name) == 'PAN')
-                                VARIAR PRECIO
-                            @else
-                                ${{ number_format($product->price, 0) }}
-                            @endif
+                        <h3 class="font-extrabold text-[13px] text-slate-900 leading-tight h-8 overflow-hidden uppercase"
+                            x-text="product.name"></h3>
+                        <div class="text-success font-black text-xs mt-1 bg-success/10 px-2 py-0.5 rounded-full border border-success/20"
+                            x-text="product.name.toUpperCase() == 'PAN' ? 'VARIAR PRECIO' : '$' + new Intl.NumberFormat().format(product.price)">
                         </div>
                     </div>
-                @endforeach
+                </template>
             </div>
         </div>
 

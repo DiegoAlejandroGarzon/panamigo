@@ -1,0 +1,5 @@
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/softluci/panamigo.softluciones.co/
+    - /bin/cp -R * $DEPLOYPATH

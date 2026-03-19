@@ -1,0 +1,1 @@
+(function(){const e=()=>{createIcons({icons,"stroke-width":1.5,nameAttr:"data-lucide"})};e(),document.addEventListener("livewire:load",e),document.addEventListener("livewire:navigated",e),window.Livewire?Livewire.hook("morph.updated",()=>{e()}):document.addEventListener("livewire:init",()=>{Livewire.hook("morph.updated",()=>{e()})})})();

@@ -1,0 +1,1 @@
+(function(){$("body").on("click",".copy-code",function(){const t=$(this).html(),e=this;$(e).html(t.replace("Copy example code","Copied!")),setTimeout(()=>{$(e).html(t)},1500);const o=$(this).closest(".highlight");$(o).find("textarea")[0].select(),$(o).find("textarea")[0].setSelectionRange(0,99999),document.execCommand("copy")})})();

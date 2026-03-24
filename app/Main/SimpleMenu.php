@@ -36,6 +36,11 @@ class SimpleMenu
                 'route_name' => 'pos.cashier',
                 'title' => 'Caja'
             ],
+            'caja_simple' => [
+                'icon' => 'credit-card',
+                'route_name' => 'pos.simple-cashier',
+                'title' => 'Caja Simple'
+            ],
             'Configuraciones' => [
                 'icon' => 'file-text',
                 'title' => 'Configuraciones',
@@ -101,6 +106,11 @@ class SimpleMenu
                 'icon' => 'credit-card',
                 'route_name' => 'pos.cashier',
                 'title' => 'Caja'
+            ],
+            'caja_simple' => [
+                'icon' => 'credit-card',
+                'route_name' => 'pos.simple-cashier',
+                'title' => 'Caja Simple'
             ],
             'divider',
             'dashboard' => [

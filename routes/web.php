@@ -94,6 +94,7 @@ Route::middleware(['auth:sanctum', 'verified'])->group(function () {
 
     Route::middleware(['role:Cajera|super-admin'])->group(function () {
         Route::get('/pos/cashier', \App\Livewire\Cashier\Terminal::class)->name('pos.cashier');
+        Route::get('/pos/simple-cashier', \App\Livewire\Cashier\SimpleTerminal::class)->name('pos.simple-cashier');
     });
 });
 

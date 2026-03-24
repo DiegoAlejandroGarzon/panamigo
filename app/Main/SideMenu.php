@@ -80,6 +80,11 @@ class SideMenu
                 'route_name' => 'pos.cashier',
                 'title' => 'Caja'
             ],
+            'caja_simple' => [
+                'icon' => 'credit-card',
+                'route_name' => 'pos.simple-cashier',
+                'title' => 'Caja Simple'
+            ],
         ];
         // Verificar el entorno y agregar el menú de configuraciones solo si APP_ENV es 'local'
         if (env('APP_ENV') === 'local') {

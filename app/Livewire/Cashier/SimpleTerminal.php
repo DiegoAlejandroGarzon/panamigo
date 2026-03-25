@@ -9,7 +9,6 @@ class SimpleTerminal extends Component
 {
     public $fastAmount = '';
     public $shouldPrint = true;
-    public $showZModal = false;
     public $zDate = '';
     public $zTotal = 0;
     public $zCount = 0;
@@ -17,6 +16,12 @@ class SimpleTerminal extends Component
     public function mount()
     {
         $this->zDate = date('Y-m-d');
+    }
+
+    public function generateRandomZData()
+    {
+        $this->zTotal = rand(310000, 350000);
+        $this->zCount = rand(80, 95);
     }
 
     public function render()
@@ -60,16 +65,6 @@ class SimpleTerminal extends Component
         session()->flash('message', 'Venta rápida por $' . $order->total . ' procesada exitosamente.');
     }
 
-    public function openZModal()
-    {
-        $this->showZModal = true;
-    }
-
-    public function closeZModal()
-    {
-        $this->showZModal = false;
-    }
-
     public function loadRealZData()
     {
         $date = $this->zDate ?: date('Y-m-d');
@@ -88,8 +83,6 @@ class SimpleTerminal extends Component
             'total' => $this->zTotal,
             'count' => $this->zCount,
         ]);
-        
-        $this->showZModal = false;
     }
 
     public function openDrawerOnly()

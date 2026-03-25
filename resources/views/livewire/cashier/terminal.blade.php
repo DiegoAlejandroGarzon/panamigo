@@ -640,7 +640,7 @@
                         '\x1B' + '\x21' + '\x00', // Normal
                         'JACQUELINE NOVOA URREGO\x0A',
                         'NIT. 39.628.435-9\x0A',
-                        'REGIMEN SIMPLIFICADO\x0A\x0A',
+                        'REGIMEN NO RESPONSABLE DE IVA\x0A\x0A',
                         'KRA 16 # 5-04\x0A',
                         'ALTO DEL ROSARIO\x0A',
                         'REG CASIO SE-800-0303888\x0A\x0A',
@@ -701,7 +701,7 @@
                         '\x1B' + '\x21' + '\x00', // Normal font
                         'JACQUELINE NOVOA URREGO\x0A',
                         'NIT. 39.628.435-9\x0A',
-                        'REGIMEN SIMPLIFICADO\x0A',
+                        'REGIMEN NO RESPONSABLE DE IVA\x0A',
                         '\x0A',
                         'KRA 16 # 5-04\x0A',
                         'ALTO DEL ROSARIO\x0A',

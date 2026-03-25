@@ -172,6 +172,11 @@ class TopMenu
                                 'route_name' => 'pos.simple-cashier',
                                 'title' => 'Caja Simple'
                             ],
+                            'dashboard_simple' => [
+                                'icon' => 'zap',
+                                'route_name' => 'pos.simple-dashboard',
+                                'title' => 'Dashboard Simple'
+                            ],
                         ]
                     ],
                     'chat' => [

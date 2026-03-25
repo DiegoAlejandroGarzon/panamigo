@@ -85,6 +85,11 @@ class SideMenu
                 'route_name' => 'pos.simple-cashier',
                 'title' => 'Caja Simple'
             ],
+            'dashboard_simple' => [
+                'icon' => 'pie-chart',
+                'route_name' => 'pos.simple-dashboard',
+                'title' => 'Dashboard Simple'
+            ],
         ];
         // Verificar el entorno y agregar el menú de configuraciones solo si APP_ENV es 'local'
         if (env('APP_ENV') === 'local') {

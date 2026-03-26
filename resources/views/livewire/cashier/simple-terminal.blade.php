@@ -221,6 +221,7 @@
 
             // Función genérica para enviar RAW a RawBT
             function printWithRawBT(dataArray) {
+                alert("printWithRawBT");
                 try {
                     // RawBT acepta comandos de escape en texto plano concatenado o base64
                     let printData = "";

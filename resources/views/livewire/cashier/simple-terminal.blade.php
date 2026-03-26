@@ -213,79 +213,137 @@
 
             const PRINTER_NAME = "XP-58"; // Cambiar por el nombre real de la tiquetera
 
+            // Detección de dispositivo móvil (Tablet/Celular)
+            function isMobileOrTablet() {
+                return /(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od|ad)|iris|kindle|lge |maemo|midp|mmp|mobile.+firefox|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows ce|xda|xiino|android|ipad|playbook|silk/i
+                    .test(navigator.userAgent || navigator.vendor || window.opera);
+            }
+
+            // Función genérica para enviar RAW a RawBT
+            function printWithRawBT(dataArray) {
+                // RawBT acepta comandos de escape en texto plano concatenado o base64
+                // Lo más simple para el navegador es construir el string y enviarlo a través del intent
+                let printData = "";
+                for (let i = 0; i < dataArray.length; i++) {
+                    printData += dataArray[i];
+                }
+
+                // Codificar la URL (btoa falla si hay caracteres fuera de latin1, por lo que usamos encodeURI / JS escape)
+                // RawBT sugiere usar text/base64, intent URL
+                let base64Data = btoa(unescape(encodeURIComponent(printData)));
+                window.location.href = "intent://" + base64Data + "#Intent;scheme=rawbt;package=ru.a402d.rawbtprinter;end;";
+            }
+
             function openDrawer() {
+                var data = ['\x1B\x70\x00\x19\xFA'];
+
+                if (isMobileOrTablet()) {
+                    console.log("Using RawBT for Drawer");
+                    printWithRawBT(data);
+                    return;
+                }
+
                 if (typeof qz === 'undefined') return;
 
                 qz.websocket.connect().then(function() {
                     return qz.printers.find(PRINTER_NAME);
                 }).then(function(printer) {
                     var config = qz.configs.create(printer);
-                    var data = ['\x1B\x70\x00\x19\xFA'];
                     return qz.print(config, data);
                 }).catch(e => console.error(e)).finally(() => qz.websocket.disconnect());
             }
 
             function printZReport(z) {
-                if (typeof qz === 'undefined') return;
+                'KRA 16 # 5-04\x0A',
+                'ALTO DEL ROSARIO\x0A',
+                'REG CASIO SE-800-0303888\x0A\x0A',
+                'Z   ' + formattedDate + '   3888 387625\x0A',
+                '--------------------------------\x0A',
+                'Z DAIARIO\x0A',
+                '--------------------------------\x0A',
+                '\x1B' + '\x61' + '\x30',
+                'Z       DEPTOS           3392\x0A',
+                '                       0001015\x0A\x0A',
+                'DEPTO1             ' + count + '\x0A',
+                '                   ' + total + '\x0A\x0A',
+                'TL                 ' + count + '\x0A',
+                '                   ' + total + '\x0A\x0A',
+                'Z       TOT. FIJOS       3392\x0A',
+                '                       0001011\x0A\x0A',
+                'BRUTO              ' + count + '\x0A',
+                '                   ' + total + '\x0A',
+                'NETO               ' + count + '\x0A',
+                '                   ' + total + '\x0A',
+                'EFEC               ' + count + '\x0A',
+                '                   ' + total + '\x0A\x0A',
+                'BASE 1                0\x0A',
+                'BASE 2                0\x0A',
+                '                      0\x0A',
+                '                      0\x0A',
+                '          387542----->387625\x0A\x0A',
+                'Z       FUNC LIBRES      3392\x0A',
+                '                       0001012\x0A\x0A',
+                'CAJA               ' + count + '\x0A',
+                '                   ' + total + '\x0A\x0A',
+                'Z       CAJ/EMPLEADO     3392\x0A',
+                '                       0001017\x0A\x0A',
+                '\x0A\x0A\x0A\x0A\x0A\x1B\x69'
+            ];
 
-                qz.websocket.connect().then(function() {
-                    return qz.printers.find(PRINTER_NAME);
-                }).then(function(printer) {
-                    var config = qz.configs.create(printer);
-                    var formattedDate = z.date;
-                    var total = parseInt(z.total).toLocaleString('es-CO');
-                    var count = z.count.toString().padStart(4, ' ');
+            if (isMobileOrTablet()) {
+                console.log("Using RawBT for Z Report");
+                printWithRawBT(data);
+                return;
+            }
 
-                    var data = [
-                        '\x1B' + '\x40',
-                        '\x1B' + '\x61' + '\x31',
-                        '\x1B' + '\x21' + '\x08',
-                        'JAKI - PAN Y SUS DELICIAS\x0A',
-                        '\x1B' + '\x21' + '\x00',
-                        'JACQUELINE NOVOA URREGO\x0A',
-                        'NIT. 39.628.435-9\x0A',
-                        'REGIMEN NO RESPONSABLE DE IVA\x0A\x0A',
-                        'KRA 16 # 5-04\x0A',
-                        'ALTO DEL ROSARIO\x0A',
-                        'REG CASIO SE-800-0303888\x0A\x0A',
-                        'Z   ' + formattedDate + '   3888 387625\x0A',
-                        '--------------------------------\x0A',
-                        'Z DAIARIO\x0A',
-                        '--------------------------------\x0A',
-                        '\x1B' + '\x61' + '\x30',
-                        'Z       DEPTOS           3392\x0A',
-                        '                       0001015\x0A\x0A',
-                        'DEPTO1             ' + count + '\x0A',
-                        '                   ' + total + '\x0A\x0A',
-                        'TL                 ' + count + '\x0A',
-                        '                   ' + total + '\x0A\x0A',
-                        'Z       TOT. FIJOS       3392\x0A',
-                        '                       0001011\x0A\x0A',
-                        'BRUTO              ' + count + '\x0A',
-                        '                   ' + total + '\x0A',
-                        'NETO               ' + count + '\x0A',
-                        '                   ' + total + '\x0A',
-                        'EFEC               ' + count + '\x0A',
-                        '                   ' + total + '\x0A\x0A',
-                        'BASE 1                0\x0A',
-                        'BASE 2                0\x0A',
-                        '                      0\x0A',
-                        '                      0\x0A',
-                        '          387542----->387625\x0A\x0A',
-                        'Z       FUNC LIBRES      3392\x0A',
-                        '                       0001012\x0A\x0A',
-                        'CAJA               ' + count + '\x0A',
-                        '                   ' + total + '\x0A\x0A',
-                        'Z       CAJ/EMPLEADO     3392\x0A',
-                        '                       0001017\x0A\x0A',
-                        '\x0A\x0A\x0A\x0A\x0A\x1B\x69'
-                    ];
+            if (typeof qz === 'undefined') return;
 
-                    return qz.print(config, data);
-                }).catch(e => console.error(e)).finally(() => qz.websocket.disconnect());
+            qz.websocket.connect().then(function() {
+                return qz.printers.find(PRINTER_NAME);
+            }).then(function(printer) {
+                var config = qz.configs.create(printer);
+                return qz.print(config, data);
+            }).catch(e => console.error(e)).finally(() => qz.websocket.disconnect());
             }
 
             function printTicket(order) {
+                var data = [
+                    '\x1B' + '\x40',
+                    '\x1B' + '\x70' + '\x00' + '\x19' + '\xFA',
+                    '\x1B' + '\x61' + '\x31',
+                    '\x1B' + '\x21' + '\x08',
+                    'JAKI - PAN Y SUS DELICIAS\x0A',
+                    '\x1B' + '\x21' + '\x00',
+                    'JACQUELINE NOVOA URREGO\x0A',
+                    'NIT. 39.628.435-9\x0A',
+                    'REGIMEN NO RESPONSABLE DE IVA\x0A',
+                    '\x0A',
+                    'KRA 16 # 5-04\x0A',
+                    'ALTO DEL ROSARIO\x0A',
+                    'REG CASIO SE-800-0303888\x0A',
+                    '\x0A',
+                    '\x1B' + '\x61' + '\x30',
+                    'REG- ' + new Date().toISOString().slice(0, 10) + ' ' + order.id.toString()
+                    .padStart(4,
+                        '0') + ' ' + (Math.floor(Math.random() * 900000) + 100000) + '\x0A',
+                    '\x0A'
+                ];
+
+                let price = parseInt(order.total).toLocaleString('es-CO').padStart(8, ' ');
+                data.push(' 1 VENTA DIRECTA     ' + price + '\x0A');
+
+                data.push('\x0A');
+                data.push('   TL                ' + price + '\x0A');
+                data.push('\x0A');
+                data.push('   CAJA\x0A');
+                data.push('\x0A\x0A\x0A\x0A\x0A\x1B\x69');
+
+                if (isMobileOrTablet()) {
+                    console.log("Using RawBT for Ticket");
+                    printWithRawBT(data);
+                    return;
+                }
+
                 if (typeof qz === 'undefined') {
                     console.error('QZ Tray library not loaded!');
                     return;
@@ -295,37 +353,6 @@
                     return qz.printers.find(PRINTER_NAME);
                 }).then(function(printer) {
                     var config = qz.configs.create(printer);
-
-                    var data = [
-                        '\x1B' + '\x40',
-                        '\x1B' + '\x70' + '\x00' + '\x19' + '\xFA',
-                        '\x1B' + '\x61' + '\x31',
-                        '\x1B' + '\x21' + '\x08',
-                        'JAKI - PAN Y SUS DELICIAS\x0A',
-                        '\x1B' + '\x21' + '\x00',
-                        'JACQUELINE NOVOA URREGO\x0A',
-                        'NIT. 39.628.435-9\x0A',
-                        'REGIMEN NO RESPONSABLE DE IVA\x0A',
-                        '\x0A',
-                        'KRA 16 # 5-04\x0A',
-                        'ALTO DEL ROSARIO\x0A',
-                        'REG CASIO SE-800-0303888\x0A',
-                        '\x0A',
-                        '\x1B' + '\x61' + '\x30',
-                        'REG- ' + new Date().toISOString().slice(0, 10) + ' ' + order.id.toString().padStart(4,
-                            '0') + ' ' + (Math.floor(Math.random() * 900000) + 100000) + '\x0A',
-                        '\x0A'
-                    ];
-
-                    let price = parseInt(order.total).toLocaleString('es-CO').padStart(8, ' ');
-                    data.push(' 1 VENTA DIRECTA     ' + price + '\x0A');
-
-                    data.push('\x0A');
-                    data.push('   TL                ' + price + '\x0A');
-                    data.push('\x0A');
-                    data.push('   CAJA\x0A');
-                    data.push('\x0A\x0A\x0A\x0A\x0A\x1B\x69');
-
                     return qz.print(config, data);
                 }).catch(function(e) {
                     console.error(e);

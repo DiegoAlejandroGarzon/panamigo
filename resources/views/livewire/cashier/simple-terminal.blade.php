@@ -221,17 +221,28 @@
 
             // Función genérica para enviar RAW a RawBT
             function printWithRawBT(dataArray) {
-                // RawBT acepta comandos de escape en texto plano concatenado o base64
-                // Lo más simple para el navegador es construir el string y enviarlo a través del intent
-                let printData = "";
-                for (let i = 0; i < dataArray.length; i++) {
-                    printData += dataArray[i];
-                }
+                try {
+                    // RawBT acepta comandos de escape en texto plano concatenado o base64
+                    let printData = "";
+                    for (let i = 0; i < dataArray.length; i++) {
+                        printData += dataArray[i];
+                    }
 
-                // Codificar la URL (btoa falla si hay caracteres fuera de latin1, por lo que usamos encodeURI / JS escape)
-                // RawBT sugiere usar text/base64, intent URL
-                let base64Data = btoa(unescape(encodeURIComponent(printData)));
-                window.location.href = "intent://" + base64Data + "#Intent;scheme=rawbt;package=ru.a402d.rawbtprinter;end;";
+                    // Codificar la URL (btoa falla si hay caracteres fuera de latin1, por lo que usamos encodeURI / JS escape)
+                    let base64Data = btoa(unescape(encodeURIComponent(printData)));
+
+                    // El formato correcto de intent para RawBT es SIN las diagonales // extras al inicio.
+                    let intentUrl = "intent:" + base64Data + "#Intent;scheme=rawbt;package=ru.a402d.rawbtprinter;end;";
+
+                    console.log("Redirecting to: " + intentUrl.substring(0, 50) + "..."); // Solo vemos un pedacito en PC
+
+                    // Solo como debug visual por dos segundos la primera vez (Puedes borrar esto luego)
+                    // alert("Intentando enviar a RawBT! Revise si abrió la app...");
+
+                    window.location.href = intentUrl;
+                } catch (error) {
+                    alert("Error armando la data para la impresora: " + error.message);
+                }
             }
 
             function openDrawer() {

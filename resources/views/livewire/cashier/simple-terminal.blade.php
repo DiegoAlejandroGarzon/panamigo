@@ -237,7 +237,7 @@
                     console.log("Redirecting to: " + intentUrl.substring(0, 50) + "..."); // Solo vemos un pedacito en PC
 
                     // Solo como debug visual por dos segundos la primera vez (Puedes borrar esto luego)
-                    // alert("Intentando enviar a RawBT! Revise si abrió la app...");
+                    alert("Intentando enviar a RawBT! Revise si abrió la app...");
 
                     window.location.href = intentUrl;
                 } catch (error) {

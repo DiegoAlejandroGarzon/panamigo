@@ -192,6 +192,7 @@
 
     @push('scripts')
         <script>
+            console.log("printTicket");
             document.addEventListener('livewire:initialized', () => {
                 Livewire.on('print-ticket', (data) => {
                     const order = data.order;
@@ -221,7 +222,6 @@
 
             // Función genérica para enviar RAW a RawBT
             function printWithRawBT(dataArray) {
-                alert("printWithRawBT");
                 try {
                     // RawBT acepta comandos de escape en texto plano concatenado o base64
                     let printData = "";
@@ -232,13 +232,10 @@
                     // Codificar la URL (btoa falla si hay caracteres fuera de latin1, por lo que usamos encodeURI / JS escape)
                     let base64Data = btoa(unescape(encodeURIComponent(printData)));
 
-                    // El formato correcto de intent para RawBT es SIN las diagonales // extras al inicio.
-                    let intentUrl = "intent:" + base64Data + "#Intent;scheme=rawbt;package=ru.a402d.rawbtprinter;end;";
+                    // El formato correcto de intent para RawBT para comandos ESC/POS requiere el prefijo base64,
+                    let intentUrl = "intent:base64," + base64Data + "#Intent;scheme=rawbt;package=ru.a402d.rawbtprinter;end;";
 
                     console.log("Redirecting to: " + intentUrl.substring(0, 50) + "..."); // Solo vemos un pedacito en PC
-
-                    // Solo como debug visual por dos segundos la primera vez (Puedes borrar esto luego)
-                    alert("Intentando enviar a RawBT! Revise si abrió la app...");
 
                     window.location.href = intentUrl;
                 } catch (error) {
@@ -266,57 +263,63 @@
             }
 
             function printZReport(z) {
-                'KRA 16 # 5-04\x0A',
-                'ALTO DEL ROSARIO\x0A',
-                'REG CASIO SE-800-0303888\x0A\x0A',
-                'Z   ' + formattedDate + '   3888 387625\x0A',
-                '--------------------------------\x0A',
-                'Z DAIARIO\x0A',
-                '--------------------------------\x0A',
-                '\x1B' + '\x61' + '\x30',
-                'Z       DEPTOS           3392\x0A',
-                '                       0001015\x0A\x0A',
-                'DEPTO1             ' + count + '\x0A',
-                '                   ' + total + '\x0A\x0A',
-                'TL                 ' + count + '\x0A',
-                '                   ' + total + '\x0A\x0A',
-                'Z       TOT. FIJOS       3392\x0A',
-                '                       0001011\x0A\x0A',
-                'BRUTO              ' + count + '\x0A',
-                '                   ' + total + '\x0A',
-                'NETO               ' + count + '\x0A',
-                '                   ' + total + '\x0A',
-                'EFEC               ' + count + '\x0A',
-                '                   ' + total + '\x0A\x0A',
-                'BASE 1                0\x0A',
-                'BASE 2                0\x0A',
-                '                      0\x0A',
-                '                      0\x0A',
-                '          387542----->387625\x0A\x0A',
-                'Z       FUNC LIBRES      3392\x0A',
-                '                       0001012\x0A\x0A',
-                'CAJA               ' + count + '\x0A',
-                '                   ' + total + '\x0A\x0A',
-                'Z       CAJ/EMPLEADO     3392\x0A',
-                '                       0001017\x0A\x0A',
-                '\x0A\x0A\x0A\x0A\x0A\x1B\x69'
-            ];
+                var count = (z.count || 0).toString().padStart(4, ' ');
+                var total = parseInt(z.total || 0).toLocaleString('es-CO').padStart(10, ' ');
+                var formattedDate = z.date || new Date().toISOString().slice(0, 10);
 
-            if (isMobileOrTablet()) {
-                console.log("Using RawBT for Z Report");
-                printWithRawBT(data);
-                return;
+                var data = [
+                    'KRA 16 # 5-04\x0A',
+                    'ALTO DEL ROSARIO\x0A',
+                    'REG CASIO SE-800-0303888\x0A\x0A',
+                    'Z   ' + formattedDate + '   3888 387625\x0A',
+                    '--------------------------------\x0A',
+                    'Z DAIARIO\x0A',
+                    '--------------------------------\x0A',
+                    '\x1B' + '\x61' + '\x30',
+                    'Z       DEPTOS           3392\x0A',
+                    '                       0001015\x0A\x0A',
+                    'DEPTO1             ' + count + '\x0A',
+                    '                   ' + total + '\x0A\x0A',
+                    'TL                 ' + count + '\x0A',
+                    '                   ' + total + '\x0A\x0A',
+                    'Z       TOT. FIJOS       3392\x0A',
+                    '                       0001011\x0A\x0A',
+                    'BRUTO              ' + count + '\x0A',
+                    '                   ' + total + '\x0A',
+                    'NETO               ' + count + '\x0A',
+                    '                   ' + total + '\x0A',
+                    'EFEC               ' + count + '\x0A',
+                    '                   ' + total + '\x0A\x0A',
+                    'BASE 1                0\x0A',
+                    'BASE 2                0\x0A',
+                    '                      0\x0A',
+                    '                      0\x0A',
+                    '          387542----->387625\x0A\x0A',
+                    'Z       FUNC LIBRES      3392\x0A',
+                    '                       0001012\x0A\x0A',
+                    'CAJA               ' + count + '\x0A',
+                    '                   ' + total + '\x0A\x0A',
+                    'Z       CAJ/EMPLEADO     3392\x0A',
+                    '                       0001017\x0A\x0A',
+                    '\x0A\x0A\x0A\x0A\x0A\x1B\x69'
+                ];
+
+                if (isMobileOrTablet()) {
+                    console.log("Using RawBT for Z Report");
+                    printWithRawBT(data);
+                    return true;
+                }
+
+                if (typeof qz === 'undefined') return;
+
+                qz.websocket.connect().then(function() {
+                    return qz.printers.find(PRINTER_NAME);
+                }).then(function(printer) {
+                    var config = qz.configs.create(printer);
+                    return qz.print(config, data);
+                }).catch(e => console.error(e)).finally(() => qz.websocket.disconnect());
             }
 
-            if (typeof qz === 'undefined') return;
-
-            qz.websocket.connect().then(function() {
-                return qz.printers.find(PRINTER_NAME);
-            }).then(function(printer) {
-                var config = qz.configs.create(printer);
-                return qz.print(config, data);
-            }).catch(e => console.error(e)).finally(() => qz.websocket.disconnect());
-            }
 
             function printTicket(order) {
                 var data = [

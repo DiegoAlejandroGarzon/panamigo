@@ -1,7 +1,8 @@
 {
     "name": "Panamigo POS",
     "short_name": "Panamigo",
-    "start_url": ".",
+    "start_url": "/",
+    "scope": "/",
     "display": "standalone",
     "orientation": "any",
     "background_color": "#ffffff",

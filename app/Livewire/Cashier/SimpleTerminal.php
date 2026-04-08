@@ -57,8 +57,6 @@ class SimpleTerminal extends Component
 
         if ($this->shouldPrint) {
             $this->dispatch('print-ticket', order: $order->load('items.product'));
-        } else {
-            $this->dispatch('open-drawer');
         }
 
         $this->fastAmount = '';

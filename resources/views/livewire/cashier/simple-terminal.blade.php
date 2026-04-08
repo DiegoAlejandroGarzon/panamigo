@@ -244,6 +244,12 @@
             }
 
             function openDrawer() {
+                // Si el usuario simplemente quiere registrar sin abrir nada (silencioso), salimos
+                if (!@js($shouldPrint)) {
+                    console.log("Silent mode: skipping drawer/printer.");
+                    return;
+                }
+
                 var data = ['\x1B\x70\x00\x19\xFA'];
 
                 if (isMobileOrTablet()) {
@@ -322,6 +328,9 @@
 
 
             function printTicket(order) {
+                // Just redundancy check
+                if (!@js($shouldPrint)) return;
+
                 var data = [
                     '\x1B' + '\x40',
                     '\x1B' + '\x70' + '\x00' + '\x19' + '\xFA',

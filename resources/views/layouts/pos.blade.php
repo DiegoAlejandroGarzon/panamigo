@@ -7,6 +7,13 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>POS - Panamigo</title>
 
+    <!-- PWA Settings -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#1e40af">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+
     <!-- Midone CSS -->
     @vite(['resources/css/app.css'])
 

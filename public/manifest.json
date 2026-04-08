@@ -1,8 +1,9 @@
 {
     "name": "Panamigo POS",
     "short_name": "Panamigo",
-    "start_url": "/",
+    "start_url": ".",
     "display": "standalone",
+    "orientation": "any",
     "background_color": "#ffffff",
     "theme_color": "#1e40af",
     "description": "Sistema de Punto de Venta para Panamigo",

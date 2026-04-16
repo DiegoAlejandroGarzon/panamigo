@@ -1,13 +1,14 @@
 import { defineConfig } from "vite";
 import laravel from "laravel-vite-plugin";
 import path from "path";
+import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
     base: '/',
     server: {
         host: '0.0.0.0',
         hmr: {
-            host: '192.168.101.11',
+            host: '192.168.101.9',
         },
     },
     build: {
@@ -163,6 +164,50 @@ export default defineConfig({
             ],
             refresh: true,
         }),
+        VitePWA({
+            registerType: 'autoUpdate',
+            outDir: 'public',
+            buildBase: '/',
+            scope: '/',
+            manifest: {
+                name: 'Panamigo POS',
+                short_name: 'Panamigo',
+                description: 'Sistema de Punto de Venta para Panamigo',
+                theme_color: '#1e40af',
+                background_color: '#ffffff',
+                display: 'standalone',
+                orientation: 'any',
+                start_url: '/',
+                icons: [
+                    {
+                        src: '/icons/icon-192x192.png',
+                        sizes: '192x192',
+                        type: 'image/png',
+                        purpose: 'any'
+                    },
+                    {
+                        src: '/icons/icon-192x192.png',
+                        sizes: '192x192',
+                        type: 'image/png',
+                        purpose: 'maskable'
+                    },
+                    {
+                        src: '/icons/icon-512x512.png',
+                        sizes: '512x512',
+                        type: 'image/png',
+                        purpose: 'any'
+                    }
+                ]
+            },
+            workbox: {
+                cleanupOutdatedCaches: true,
+                directoryIndex: '/',
+                globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
+                navigateFallback: '/',
+                // Evitar que el drawer/impresora falle por cache
+                navigateFallbackDenylist: [/^\/api/],
+            }
+        })
     ],
     resolve: {
         alias: {

@@ -30,52 +30,52 @@
     "src": "node_modules/leaflet/dist/images/marker-icon.png"
   },
   "resources/css/app.css": {
-    "file": "assets/app-0c1b3676.css",
+    "file": "assets/app-e9ea3a85.css",
     "isEntry": true,
     "src": "resources/css/app.css"
   },
   "resources/css/components/mobile-menu.css": {
-    "file": "assets/mobile-menu-4644f2e6.css",
+    "file": "assets/mobile-menu-3f10e362.css",
     "isEntry": true,
     "src": "resources/css/components/mobile-menu.css"
   },
   "resources/css/themes/enigma/side-nav.css": {
-    "file": "assets/side-nav-472e8a1e.css",
+    "file": "assets/side-nav-4dcce5cb.css",
     "isEntry": true,
     "src": "resources/css/themes/enigma/side-nav.css"
   },
   "resources/css/themes/enigma/top-nav.css": {
-    "file": "assets/top-nav-076af901.css",
+    "file": "assets/top-nav-d2b9e3f0.css",
     "isEntry": true,
     "src": "resources/css/themes/enigma/top-nav.css"
   },
   "resources/css/themes/icewall/side-nav.css": {
-    "file": "assets/side-nav-6680b2a3.css",
+    "file": "assets/side-nav-da681d08.css",
     "isEntry": true,
     "src": "resources/css/themes/icewall/side-nav.css"
   },
   "resources/css/themes/icewall/top-nav.css": {
-    "file": "assets/top-nav-236d88dc.css",
+    "file": "assets/top-nav-a229e2a5.css",
     "isEntry": true,
     "src": "resources/css/themes/icewall/top-nav.css"
   },
   "resources/css/themes/rubick/side-nav.css": {
-    "file": "assets/side-nav-7f0fe51d.css",
+    "file": "assets/side-nav-36e237ea.css",
     "isEntry": true,
     "src": "resources/css/themes/rubick/side-nav.css"
   },
   "resources/css/themes/rubick/top-nav.css": {
-    "file": "assets/top-nav-ecd11018.css",
+    "file": "assets/top-nav-564673b8.css",
     "isEntry": true,
     "src": "resources/css/themes/rubick/top-nav.css"
   },
   "resources/css/themes/tinker/side-nav.css": {
-    "file": "assets/side-nav-2084c04c.css",
+    "file": "assets/side-nav-d119590f.css",
     "isEntry": true,
     "src": "resources/css/themes/tinker/side-nav.css"
   },
   "resources/css/themes/tinker/top-nav.css": {
-    "file": "assets/top-nav-bd4aced1.css",
+    "file": "assets/top-nav-08a08441.css",
     "isEntry": true,
     "src": "resources/css/themes/tinker/top-nav.css"
   },
@@ -90,7 +90,7 @@
     "src": "resources/css/vendors/dropzone.css"
   },
   "resources/css/vendors/full-calendar.css": {
-    "file": "assets/full-calendar-4f0332e4.css",
+    "file": "assets/full-calendar-c88c1d40.css",
     "isEntry": true,
     "src": "resources/css/vendors/full-calendar.css"
   },
@@ -115,7 +115,7 @@
     "src": "resources/css/vendors/simplebar.css"
   },
   "resources/css/vendors/tabulator.css": {
-    "file": "assets/tabulator-c4bbe32a.css",
+    "file": "assets/tabulator-41dd1665.css",
     "isEntry": true,
     "src": "resources/css/vendors/tabulator.css"
   },
@@ -684,7 +684,7 @@
     "src": "resources/js/themes/tinker.js"
   },
   "resources/js/utils/colors.js": {
-    "file": "assets/colors-1cd93298.js",
+    "file": "assets/colors-7999c159.js",
     "imports": [
       "_color-676ffe0d.js",
       "__commonjsHelpers-725317a4.js"

@@ -1,9 +1,19 @@
-// Service Worker básico para habilitar el botón de instalación de PWA
-self.addEventListener('install', (e) => {
-    console.log('[Service Worker] Install');
+const CACHE_NAME = 'panamigo-v1';
+
+// Al instalar, podemos precachear la página de inicio
+self.addEventListener('install', (event) => {
+    event.waitUntil(
+        caches.open(CACHE_NAME).then((cache) => {
+            return cache.addAll(['/']);
+        })
+    );
 });
 
-self.addEventListener('fetch', (e) => {
-    // Necesario para que Chrome lo considere PWA, aunque no cacheemos nada por ahora
-    e.respondWith(fetch(e.request));
+// El evento fetch es obligatorio para que Chrome muestre el botón de instalar
+self.addEventListener('fetch', (event) => {
+    event.respondWith(
+        fetch(event.request).catch(() => {
+            return caches.match(event.request);
+        })
+    );
 });

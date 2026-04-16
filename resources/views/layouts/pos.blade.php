@@ -34,19 +34,19 @@
     @stack('scripts')
 
     <script>
-        // Ensure Lucide icons are initialized if they haven't been
+        // Ensure Lucide icons are initialized
         document.addEventListener('livewire:navigated', () => {
             if (typeof lucide !== 'undefined') {
                 lucide.createIcons();
             }
         });
 
-        // Registro del Service Worker para PWA
+        // PWA Service Worker Registration
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/sw.js')
-                    .then(reg => console.log('Service Worker registrado', reg))
-                    .catch(err => console.error('Error al registrar Service Worker', err));
+                    .then(reg => console.log('SW Registered', reg))
+                    .catch(err => console.error('SW Error', err));
             });
         }
     </script>

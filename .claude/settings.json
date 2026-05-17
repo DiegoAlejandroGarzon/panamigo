@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(php artisan:*)",
+      "Bash(xargs grep:*)",
+      "Bash(export PATH=\"/d/laragon/bin/php/php-8.2.24-Win32-vs16-x64:$PATH\")",
+      "Bash(php --version)",
+      "Bash(php -l app/Http/Controllers/UserController.php)"
+    ]
+  }
+}

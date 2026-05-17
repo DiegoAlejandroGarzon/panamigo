@@ -58,11 +58,6 @@ class UserController extends Controller
             'status' => 'nullable|boolean',
             // 'department_id' => 'required|exists:departments,id',
             // 'city_id' => 'required|exists:cities,id',
-            'birth_date' => 'nullable|date',
-            'phone' => 'required|string|max:15',
-            'type_document' => 'required|string|max:3',
-            'document_number' => 'required|string|max:20|unique:users,document_number',
-            // 'empresa_id' => 'required|exists:empresas,id',
         ]);
 
         $user = new User();
@@ -71,12 +66,6 @@ class UserController extends Controller
         $user->email = $request->email;
         $user->password = bcrypt($request->password);
         $user->status = $request->status;
-        // $user->city_id = $request->city_id;
-        // $user->birth_date = $request->birth_date;
-        $user->phone = $request->phone;
-        $user->type_document = $request->type_document;
-        $user->document_number = $request->document_number;
-        // $user->empresa_id = $request->empresa_id;
         $user->save();
 
         //validar ciudades
@@ -109,33 +98,15 @@ class UserController extends Controller
                 'max:255',
                 Rule::unique('users', 'email')->ignore($userId),
             ],
-            'phone' => 'nullable|string|max:15', // Validación para el teléfono
-            'type_document' => 'required|string|max:50', // Validación para el tipo de documento
-            'document_number' => [
-                'required',
-                'string',
-                'max:20',
-                Rule::unique('users', 'document_number')->ignore($userId),
-            ],
             'role_id' => 'required|exists:roles,id',
             'status' => 'nullable|boolean',
-            'department_id' => 'required|exists:departments,id',
-            'city_id' => 'required|exists:cities,id',
-            'birth_date' => 'nullable|date',
-            'empresa_id' => 'required|exists:empresas,id',
         ]);
 
         $user = User::findOrFail($userId);
         $user->name = $request->name;
         $user->lastname = $request->lastname;
         $user->email = $request->email;
-        $user->phone = $request->phone; // Asignar el teléfono
-        $user->type_document = $request->type_document; // Asignar el tipo de documento
-        $user->document_number = $request->document_number; // Asignar el número de documento
         $user->status = $request->status;
-        $user->city_id = $request->city_id;
-        $user->birth_date = $request->birth_date;
-        $user->empresa_id = $request->empresa_id;
         $user->save();
 
         // Asignar el rol
@@ -164,28 +135,12 @@ class UserController extends Controller
                 'max:255',
                 Rule::unique('users', 'email')->ignore($userId),
             ],
-            'phone' => 'nullable|string|max:15', // Validación para el teléfono
-            'type_document' => 'required|string|max:50', // Validación para el tipo de documento
-            'document_number' => [
-                'required',
-                'string',
-                'max:20',
-                Rule::unique('users', 'document_number')->ignore($userId),
-            ],
-            'department_id' => 'required|exists:departments,id',
-            'city_id' => 'required|exists:cities,id',
-            'birth_date' => 'nullable|date',
         ]);
 
         $user = User::findOrFail($userId);
         $user->name = $request->name;
         $user->lastname = $request->lastname;
         $user->email = $request->email;
-        $user->phone = $request->phone; // Asignar el teléfono
-        $user->type_document = $request->type_document; // Asignar el tipo de documento
-        $user->document_number = $request->document_number; // Asignar el número de documento
-        $user->city_id = $request->city_id;
-        $user->birth_date = $request->birth_date;
         $user->save();
 
         // Redirigir con mensaje de éxito

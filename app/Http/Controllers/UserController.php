@@ -2,9 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Empresa;
-use App\Models\Departament;
-use App\Models\City;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -82,9 +79,7 @@ class UserController extends Controller
     public function edit($id){
         $user = User::find($id);
         $roles = Role::all();
-        $departments = Departament::all();
-        $empresas = Empresa::all();
-        return view('users.update', compact(['user', 'roles', 'departments', 'empresas']));
+        return view('users.update', compact(['user', 'roles']));
     }
 
     public function update(Request $request){

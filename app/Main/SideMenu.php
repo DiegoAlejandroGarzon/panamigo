@@ -44,6 +44,11 @@ class SideMenu
             'route_name' => 'pos.simple-dashboard',
             'title' => 'Reportes'
         ];
+        $menu['z_report'] = [
+            'icon' => 'printer',
+            'route_name' => 'pos.z-report',
+            'title' => 'Reporte Z'
+        ];
 
         if ($isAdmin) {
             $menu['divider_admin'] = 'divider';

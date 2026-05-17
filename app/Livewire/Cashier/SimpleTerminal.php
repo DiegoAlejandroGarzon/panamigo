@@ -3,8 +3,9 @@
 namespace App\Livewire\Cashier;
 
 use Livewire\Component;
-use App\Models\Order;
 use App\Models\Expense;
+use App\Models\Order;
+use App\Models\ZPrint;
 
 class SimpleTerminal extends Component
 {
@@ -108,11 +109,26 @@ class SimpleTerminal extends Component
 
     public function printZReport()
     {
+        $this->validate([
+            'zTotal' => 'required|numeric|min:0',
+            'zCount' => 'required|integer|min:0',
+            'zDate'  => 'required|date',
+        ]);
+
+        ZPrint::create([
+            'print_date'     => $this->zDate,
+            'reported_total' => $this->zTotal,
+            'reported_count' => $this->zCount,
+            'user_id'        => auth()->id(),
+        ]);
+
         $this->dispatch('print-z', data: [
-            'date' => $this->zDate,
+            'date'  => $this->zDate,
             'total' => $this->zTotal,
             'count' => $this->zCount,
         ]);
+
+        session()->flash('z_message', 'Z del ' . $this->zDate . ' guardado: $' . number_format($this->zTotal, 0, ',', '.') . ' / ' . $this->zCount . ' ventas.');
     }
 
     public function openDrawerOnly()

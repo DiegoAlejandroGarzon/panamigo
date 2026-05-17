@@ -44,6 +44,12 @@
                         icon="X" class="w-6 h-6" /></button>
             </div>
             <div class="p-6 space-y-4">
+                @if (session()->has('z_message'))
+                    <div class="flex items-center gap-2 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg text-sm font-medium">
+                        <x-base.lucide icon="CheckCircle" class="w-4 h-4 flex-shrink-0" />
+                        {{ session('z_message') }}
+                    </div>
+                @endif
                 <div>
                     <label class="form-label font-bold text-xs uppercase text-slate-500">Fecha del Reporte</label>
                     <input type="date" wire:model="zDate" class="form-control">

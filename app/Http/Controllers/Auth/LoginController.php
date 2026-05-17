@@ -31,14 +31,10 @@ class LoginController extends Controller
     {
         \Log::info('User Logged In: ' . $user->email . ' with roles: ' . implode(', ', $user->getRoleNames()->toArray()));
 
-        if ($user->hasRole('Atención al Cliente')) {
-            return redirect('/pos/order');
-        }
-        
         if ($user->hasRole('Cajera')) {
-            return redirect('/pos/cashier');
+            return redirect('/pos/simple-cashier');
         }
-        
+
         if ($user->hasRole('Admin') || $user->hasRole('super-admin')) {
             return redirect('/admin/dashboard');
         }

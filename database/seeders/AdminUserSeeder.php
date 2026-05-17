@@ -15,15 +15,20 @@ class AdminUserSeeder extends Seeder
      */
     public function run(): void
     {
-        $admin = User::create([
-            'name' => 'Admin',
-            'lastname' => 'Super-Admin',
-            'email' => 'superadmin@example.com',
-            'password' => Hash::make('12345678'),
-            'status' => true,
-        ]);
-        $role = Role::firstOrCreate(['name' => 'super-admin']);
-        $admin->assignRole($role);
+        // Super admin
+        $admin = User::firstOrCreate(
+            ['email' => 'superadmin@example.com'],
+            [
+                'name' => 'Admin',
+                'lastname' => 'Super-Admin',
+                'password' => Hash::make('12345678'),
+                'status' => true,
+            ]
+        );
+        $adminRole = Role::firstOrCreate(['name' => 'super-admin']);
+        $admin->assignRole($adminRole);
 
+        // Roles del sistema
+        Role::firstOrCreate(['name' => 'Cajera']);
     }
 }

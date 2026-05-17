@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(rm -f public/build/registerSW.js public/build/manifest.webmanifest)",
+      "Bash(npm run:*)",
+      "Bash(php -r \"echo '192: '.implode\\('x',array_slice\\(getimagesize\\('public/icons/icon-192x192.png'\\),0,2\\)\\).PHP_EOL; echo '512: '.implode\\('x',array_slice\\(getimagesize\\('public/icons/icon-512x512.png'\\),0,2\\)\\).PHP_EOL;\")"
+    ]
+  }
+}

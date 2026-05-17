@@ -19,11 +19,11 @@
                     href=""
                 >
                     <img
-                        class="w-6"
-                        src="{{ Vite::asset('resources/images/logo.svg') }}"
-                        alt="Midone - Tailwind Admin Dashboard Template"
+                        class="w-8 h-8 rounded-md"
+                        src="{{ Vite::asset('resources/images/logo.png') }}"
+                        alt="Panamigo"
                     />
-                    <span class="ml-3 text-lg text-white"> PanAmigo </span>
+                    <span class="ml-3 text-lg font-semibold text-white">PanAmigo</span>
                 </a>
                 <!-- END: Logo -->
                 <!-- BEGIN: Breadcrumb -->

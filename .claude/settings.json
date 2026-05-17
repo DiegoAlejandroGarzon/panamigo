@@ -5,7 +5,8 @@
       "Bash(xargs grep:*)",
       "Bash(export PATH=\"/d/laragon/bin/php/php-8.2.24-Win32-vs16-x64:$PATH\")",
       "Bash(php --version)",
-      "Bash(php -l app/Http/Controllers/UserController.php)"
+      "Bash(php -l app/Http/Controllers/UserController.php)",
+      "Bash(ls public/build/assets/logo-*.png)"
     ]
   }
 }

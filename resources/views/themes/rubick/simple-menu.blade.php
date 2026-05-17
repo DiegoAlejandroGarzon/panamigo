@@ -18,9 +18,9 @@
                     href=""
                 >
                     <img
-                        class="w-6"
-                        src="{{ Vite::asset('resources/images/logo.svg') }}"
-                        alt="Midone - Tailwind Admin Dashboard Template"
+                        class="w-8 h-8 rounded-md"
+                        src="{{ Vite::asset('resources/images/logo.png') }}"
+                        alt="Panamigo"
                     />
                 </a>
                 <div class="side-nav__divider my-6"></div>

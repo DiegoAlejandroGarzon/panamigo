@@ -30,7 +30,7 @@
     "src": "node_modules/leaflet/dist/images/marker-icon.png"
   },
   "resources/css/app.css": {
-    "file": "assets/app-e9ea3a85.css",
+    "file": "assets/app-6efb7a42.css",
     "isEntry": true,
     "src": "resources/css/app.css"
   },
@@ -372,6 +372,10 @@
     "file": "assets/top-menu-6bd15a6f.png",
     "src": "resources/images/layouts/top-menu.png"
   },
+  "resources/images/logo.png": {
+    "file": "assets/logo-51358783.png",
+    "src": "resources/images/logo.png"
+  },
   "resources/images/logo.svg": {
     "file": "assets/logo-9a88cec5.svg",
     "src": "resources/images/logo.svg"
@@ -609,22 +613,22 @@
     "src": "resources/js/components/stacked-bar-chart.js"
   },
   "resources/js/components/themes/enigma/top-bar.js": {
-    "file": "assets/top-bar-f5ec194d.js",
+    "file": "assets/top-bar-b537ce70.js",
     "isEntry": true,
     "src": "resources/js/components/themes/enigma/top-bar.js"
   },
   "resources/js/components/themes/icewall/top-bar.js": {
-    "file": "assets/top-bar-9e092300.js",
+    "file": "assets/top-bar-287fd83e.js",
     "isEntry": true,
     "src": "resources/js/components/themes/icewall/top-bar.js"
   },
   "resources/js/components/themes/rubick/top-bar.js": {
-    "file": "assets/top-bar-287fd83e.js",
+    "file": "assets/top-bar-f5ec194d.js",
     "isEntry": true,
     "src": "resources/js/components/themes/rubick/top-bar.js"
   },
   "resources/js/components/themes/tinker/top-bar.js": {
-    "file": "assets/top-bar-b537ce70.js",
+    "file": "assets/top-bar-9e092300.js",
     "isEntry": true,
     "src": "resources/js/components/themes/tinker/top-bar.js"
   },
@@ -684,7 +688,7 @@
     "src": "resources/js/themes/tinker.js"
   },
   "resources/js/utils/colors.js": {
-    "file": "assets/colors-7999c159.js",
+    "file": "assets/colors-f6424f04.js",
     "imports": [
       "_color-676ffe0d.js",
       "__commonjsHelpers-725317a4.js"

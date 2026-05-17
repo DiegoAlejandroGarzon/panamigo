@@ -18,11 +18,11 @@
                     href="{{ route('home') }}"
                 >
                     <img
-                        class="w-6"
-                        src="{{ Vite::asset('resources/images/logo.svg') }}"
-                        alt="Midone - Tailwind Admin Dashboard Template"
+                        class="w-8 h-8 rounded-md"
+                        src="{{ Vite::asset('resources/images/logo.png') }}"
+                        alt="Panamigo"
                     />
-                    <span class="ml-3 hidden text-lg text-white xl:block"> PanAmigo </span>
+                    <span class="ml-3 hidden text-lg font-semibold text-white xl:block">PanAmigo</span>
                 </a>
                 <div class="side-nav__divider my-6"></div>
                 <ul>

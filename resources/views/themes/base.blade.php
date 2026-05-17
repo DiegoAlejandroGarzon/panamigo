@@ -39,6 +39,15 @@ License: You must have a valid license purchased only from themeforest(the above
 
     @yield('head')
 
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#1e40af">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Panamigo">
+    <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
+
     <!-- BEGIN: CSS Assets-->
     @stack('styles')
    
@@ -66,6 +75,51 @@ License: You must have a valid license purchased only from themeforest(the above
     @vite('resources/js/components/base/theme-color.js')
     @stack('scripts')
     <!-- END: Pages, layouts, components JS Assets-->
+
+    <!-- PWA Install Banner -->
+    <div id="pwa-install-banner" style="display:none; position:fixed; bottom:16px; left:50%; transform:translateX(-50%); background:#1e40af; color:#fff; padding:12px 20px; border-radius:12px; z-index:9999; box-shadow:0 4px 20px rgba(0,0,0,0.3); align-items:center; gap:12px; font-family:sans-serif; font-size:14px; max-width:90vw;">
+        <img src="/icons/icon-192x192.png" style="width:36px;height:36px;border-radius:8px;" alt="">
+        <span>Instala <strong>Panamigo</strong> en tu dispositivo</span>
+        <button id="pwa-install-btn" style="background:#fff; color:#1e40af; border:none; padding:8px 16px; border-radius:8px; cursor:pointer; font-weight:bold; white-space:nowrap;">Instalar</button>
+        <button id="pwa-dismiss-btn" style="background:transparent; color:#fff; border:none; cursor:pointer; font-size:18px; line-height:1; padding:0 4px;">&times;</button>
+    </div>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js', { scope: '/' })
+                    .then(function(reg) { console.log('SW registrado:', reg.scope); })
+                    .catch(function(err) { console.error('SW error:', err); });
+            });
+        }
+
+        let deferredPrompt;
+        const banner = document.getElementById('pwa-install-banner');
+
+        window.addEventListener('beforeinstallprompt', function(e) {
+            e.preventDefault();
+            deferredPrompt = e;
+            banner.style.display = 'flex';
+        });
+
+        document.getElementById('pwa-install-btn').addEventListener('click', function() {
+            if (!deferredPrompt) return;
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then(function() {
+                deferredPrompt = null;
+                banner.style.display = 'none';
+            });
+        });
+
+        document.getElementById('pwa-dismiss-btn').addEventListener('click', function() {
+            banner.style.display = 'none';
+        });
+
+        window.addEventListener('appinstalled', function() {
+            banner.style.display = 'none';
+            deferredPrompt = null;
+        });
+    </script>
 </body>
 
 </html>

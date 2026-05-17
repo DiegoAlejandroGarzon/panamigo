@@ -103,6 +103,70 @@
         </div>
     </div>
 
+    <!-- Balance: Gastos & Rentabilidad -->
+    <div class="grid grid-cols-12 gap-6 mt-6">
+        {{-- Gastos Hoy --}}
+        <div class="col-span-12 sm:col-span-6 xl:col-span-4 intro-y">
+            <div class="report-box zoom-in bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-12 h-12 flex items-center justify-center rounded-xl bg-amber-50 text-amber-500">
+                        <x-base.lucide icon="ShoppingCart" class="w-6 h-6" />
+                    </div>
+                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Hoy</span>
+                </div>
+                <div class="text-3xl font-black text-slate-700 tracking-tighter">
+                    ${{ number_format($todayExpensesTotal, 0, ',', '.') }}</div>
+                <div class="text-[10px] font-black text-slate-400 mt-1 uppercase tracking-widest">Gastos / Pedidos Hoy</div>
+                @if($todayExpenses->isNotEmpty())
+                    <div class="mt-3 space-y-1 max-h-28 overflow-y-auto">
+                        @foreach($todayExpenses as $exp)
+                            <div class="flex justify-between text-xs text-slate-500">
+                                <span class="truncate max-w-[60%]">{{ $exp->concept }}</span>
+                                <span class="font-bold">${{ number_format($exp->amount, 0, ',', '.') }}</span>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+        </div>
+
+        {{-- Balance Diario --}}
+        @php $todayBalance = $totalSales - $todayExpensesTotal; @endphp
+        <div class="col-span-12 sm:col-span-6 xl:col-span-4 intro-y">
+            <div class="report-box zoom-in bg-white rounded-2xl shadow-sm border border-slate-200 p-6 {{ $todayBalance >= 0 ? 'border-l-4 border-success' : 'border-l-4 border-danger' }}">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-12 h-12 flex items-center justify-center rounded-xl {{ $todayBalance >= 0 ? 'bg-success/10 text-success' : 'bg-danger/10 text-danger' }}">
+                        <x-base.lucide icon="{{ $todayBalance >= 0 ? 'TrendingUp' : 'TrendingDown' }}" class="w-6 h-6" />
+                    </div>
+                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Hoy</span>
+                </div>
+                <div class="text-3xl font-black tracking-tighter {{ $todayBalance >= 0 ? 'text-success' : 'text-danger' }}">
+                    ${{ number_format(abs($todayBalance), 0, ',', '.') }}</div>
+                <div class="text-[10px] font-black text-slate-400 mt-1 uppercase tracking-widest">Balance del Día</div>
+                <div class="text-xs text-slate-400 mt-1">Ventas − Gastos</div>
+            </div>
+        </div>
+
+        {{-- Balance del Mes --}}
+        @php $monthBalance = $monthSalesTotal - $monthExpensesTotal; @endphp
+        <div class="col-span-12 sm:col-span-12 xl:col-span-4 intro-y">
+            <div class="report-box zoom-in bg-white rounded-2xl shadow-sm border border-slate-200 p-6 {{ $monthBalance >= 0 ? 'border-l-4 border-primary' : 'border-l-4 border-danger' }}">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-12 h-12 flex items-center justify-center rounded-xl bg-primary/10 text-primary">
+                        <x-base.lucide icon="CalendarDays" class="w-6 h-6" />
+                    </div>
+                    <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Este Mes</span>
+                </div>
+                <div class="text-3xl font-black tracking-tighter {{ $monthBalance >= 0 ? 'text-primary' : 'text-danger' }}">
+                    ${{ number_format(abs($monthBalance), 0, ',', '.') }}</div>
+                <div class="text-[10px] font-black text-slate-400 mt-1 uppercase tracking-widest">Balance del Mes</div>
+                <div class="text-xs text-slate-400 mt-1">
+                    Ventas ${{ number_format($monthSalesTotal, 0, ',', '.') }} − Gastos ${{ number_format($monthExpensesTotal, 0, ',', '.') }}
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Dynamic Charts & History -->
     <div class="grid grid-cols-12 gap-6 mt-10">
         <div class="col-span-12 lg:col-span-8 intro-y box p-6 rounded-3xl shadow-lg bg-white">

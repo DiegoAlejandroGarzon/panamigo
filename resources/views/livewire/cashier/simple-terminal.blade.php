@@ -1,4 +1,4 @@
-<div x-data="{ showZModal: false }">
+<div x-data="{ showZModal: false, showExpenseModal: false }">
     <div class="intro-y flex flex-col sm:flex-row items-center mt-8">
         <h2 class="text-lg font-medium mr-auto flex items-center gap-4">
             Caja Simple - Ventas Rápidas
@@ -16,6 +16,9 @@
             </x-base.button>
             <x-base.button @click="showZModal = true" variant="primary" class="shadow-md flex items-center gap-2">
                 <x-base.lucide icon="FileText" class="w-4 h-4" /> REPORTE Z
+            </x-base.button>
+            <x-base.button @click="showExpenseModal = true" variant="outline-warning" class="shadow-md flex items-center gap-2">
+                <x-base.lucide icon="ShoppingCart" class="w-4 h-4" /> PEDIDOS
             </x-base.button>
             <x-base.button wire:click="openDrawerOnly" variant="outline-secondary"
                 class="shadow-md flex items-center gap-2">
@@ -76,6 +79,84 @@
                 <x-base.button wire:click="printZReport" @click="showZModal = false" variant="success"
                     class="text-white px-8">
                     <x-base.lucide icon="Printer" class="w-4 h-4 mr-2" /> IMPRIMIR Z
+                </x-base.button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Registro de Pedidos / Gastos -->
+    <div x-show="showExpenseModal" style="display:none"
+        class="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" x-transition>
+        <div class="intro-y box w-full max-w-lg bg-white shadow-2xl rounded-xl overflow-hidden"
+            @click.away="showExpenseModal = false">
+            <div class="p-5 border-b border-slate-200 flex justify-between items-center bg-amber-50">
+                <h2 class="font-bold text-lg flex items-center gap-2 text-amber-800">
+                    <x-base.lucide icon="ShoppingCart" class="w-5 h-5" /> REGISTRAR PEDIDO / GASTO
+                </h2>
+                <button @click="showExpenseModal = false" class="text-slate-400 hover:text-slate-600">
+                    <x-base.lucide icon="X" class="w-6 h-6" />
+                </button>
+            </div>
+            <div class="p-6 space-y-4">
+
+                @if (session()->has('expense_message'))
+                    <div class="flex items-center gap-2 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg text-sm font-medium">
+                        <x-base.lucide icon="CheckCircle" class="w-4 h-4 flex-shrink-0" />
+                        {{ session('expense_message') }}
+                    </div>
+                @endif
+
+                <div>
+                    <label class="form-label font-bold text-xs uppercase text-slate-500">Monto del Pedido ($)</label>
+                    <input type="number" wire:model="expenseAmount" class="form-control text-2xl font-bold" placeholder="0" min="1">
+                    @error('expenseAmount') <span class="text-danger text-xs mt-1 block">{{ $message }}</span> @enderror
+                </div>
+
+                <div>
+                    <label class="form-label font-bold text-xs uppercase text-slate-500">Concepto / Descripción</label>
+                    <input type="text" wire:model="expenseConcept" class="form-control" placeholder="Ej: Harina, Azúcar, Gas...">
+                    @error('expenseConcept') <span class="text-danger text-xs mt-1 block">{{ $message }}</span> @enderror
+                </div>
+
+                <div>
+                    <label class="form-label font-bold text-xs uppercase text-slate-500">Categoría</label>
+                    <select wire:model="expenseCategory" class="form-select">
+                        <option>Materia Prima</option>
+                        <option>Servicios</option>
+                        <option>Transporte</option>
+                        <option>Empaque</option>
+                        <option>Nómina</option>
+                        <option>Otro</option>
+                    </select>
+                </div>
+
+                <!-- Resumen del día -->
+                @if($todayExpenses->isNotEmpty())
+                <div class="border-t pt-4">
+                    <p class="text-xs font-bold uppercase text-slate-500 mb-2">Pedidos registrados hoy</p>
+                    <div class="space-y-2 max-h-40 overflow-y-auto">
+                        @foreach($todayExpenses as $expense)
+                        <div class="flex items-center justify-between text-sm bg-slate-50 px-3 py-2 rounded-lg">
+                            <div>
+                                <span class="font-medium text-slate-700">{{ $expense->concept }}</span>
+                                <span class="text-xs text-slate-400 ml-2">{{ $expense->category }}</span>
+                            </div>
+                            <span class="font-bold text-amber-600">${{ number_format($expense->amount, 0, ',', '.') }}</span>
+                        </div>
+                        @endforeach
+                    </div>
+                    <div class="flex justify-between items-center mt-3 pt-2 border-t">
+                        <span class="text-xs font-bold uppercase text-slate-500">Total gastado hoy</span>
+                        <span class="font-black text-amber-700 text-lg">${{ number_format($todayExpenses->sum('amount'), 0, ',', '.') }}</span>
+                    </div>
+                </div>
+                @endif
+
+            </div>
+            <div class="p-5 border-t border-slate-200 flex justify-end gap-2 bg-slate-50 rounded-b-xl">
+                <x-base.button @click="showExpenseModal = false" variant="outline-secondary">CANCELAR</x-base.button>
+                <x-base.button wire:click="registerExpense" variant="warning" class="text-white px-8">
+                    <x-base.lucide icon="Save" class="w-4 h-4 mr-2" /> REGISTRAR PEDIDO
                 </x-base.button>
             </div>
         </div>
@@ -151,15 +232,48 @@
 
         <!-- History Area -->
         <div class="col-span-12 lg:col-span-4 flex flex-col gap-6">
+            @php
+                $todaySalesTotal = \App\Models\Order::whereDate('created_at', date('Y-m-d'))->where('status', 'paid')->sum('total');
+                $todayExpensesTotal = $todayExpenses->sum('amount');
+                $todayBalance = $todaySalesTotal - $todayExpensesTotal;
+            @endphp
+
             <div class="intro-y box p-5 shadow-sm border-t-4 border-success flex items-center justify-between">
                 <div>
                     <h3 class="text-slate-500 text-xs font-bold uppercase tracking-widest">Ventas de Hoy</h3>
-                    <div class="text-2xl font-black mt-1">
-                        ${{ number_format(\App\Models\Order::whereDate('created_at', date('Y-m-d'))->where('status', 'paid')->sum('total'), 2) }}
+                    <div class="text-2xl font-black mt-1 text-success">
+                        ${{ number_format($todaySalesTotal, 0, ',', '.') }}
                     </div>
                 </div>
                 <div class="w-12 h-12 rounded-full bg-success/10 text-success flex items-center justify-center">
                     <x-base.lucide icon="TrendingUp" class="w-6 h-6" />
+                </div>
+            </div>
+
+            <div class="intro-y box p-5 shadow-sm border-t-4 border-warning flex items-center justify-between cursor-pointer"
+                @click="showExpenseModal = true">
+                <div>
+                    <h3 class="text-slate-500 text-xs font-bold uppercase tracking-widest">Pedidos / Gastos</h3>
+                    <div class="text-2xl font-black mt-1 text-warning">
+                        ${{ number_format($todayExpensesTotal, 0, ',', '.') }}
+                    </div>
+                    <div class="text-xs text-slate-400 mt-0.5">{{ $todayExpenses->count() }} registro(s) hoy</div>
+                </div>
+                <div class="w-12 h-12 rounded-full bg-warning/10 text-warning flex items-center justify-center">
+                    <x-base.lucide icon="ShoppingCart" class="w-6 h-6" />
+                </div>
+            </div>
+
+            <div class="intro-y box p-5 shadow-sm border-t-4 {{ $todayBalance >= 0 ? 'border-primary' : 'border-danger' }} flex items-center justify-between">
+                <div>
+                    <h3 class="text-slate-500 text-xs font-bold uppercase tracking-widest">Balance del Día</h3>
+                    <div class="text-2xl font-black mt-1 {{ $todayBalance >= 0 ? 'text-primary' : 'text-danger' }}">
+                        ${{ number_format($todayBalance, 0, ',', '.') }}
+                    </div>
+                    <div class="text-xs text-slate-400 mt-0.5">Ventas − Gastos</div>
+                </div>
+                <div class="w-12 h-12 rounded-full {{ $todayBalance >= 0 ? 'bg-primary/10 text-primary' : 'bg-danger/10 text-danger' }} flex items-center justify-center">
+                    <x-base.lucide icon="{{ $todayBalance >= 0 ? 'TrendingUp' : 'TrendingDown' }}" class="w-6 h-6" />
                 </div>
             </div>
 

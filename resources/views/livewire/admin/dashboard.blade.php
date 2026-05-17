@@ -83,6 +83,59 @@
 
     </div>
 
+    <!-- ── Balance Row ── -->
+    <div class="grid grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
+
+        {{-- Gastos Hoy --}}
+        <div class="intro-y">
+            <div class="box p-5 h-full">
+                <div class="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center">
+                    <x-base.lucide icon="ShoppingCart" class="w-5 h-5 text-amber-500" />
+                </div>
+                <div class="text-2xl font-bold mt-4">${{ number_format($todayExpensesTotal, 0, ',', '.') }}</div>
+                <div class="text-slate-500 text-sm mt-1">Gastos Hoy</div>
+            </div>
+        </div>
+
+        {{-- Balance Hoy --}}
+        @php $todayBalance = $totalSalesToday - $todayExpensesTotal; @endphp
+        <div class="intro-y">
+            <div class="box p-5 h-full {{ $todayBalance >= 0 ? 'border-l-4 border-success' : 'border-l-4 border-danger' }}">
+                <div class="w-10 h-10 rounded-full {{ $todayBalance >= 0 ? 'bg-success/10' : 'bg-danger/10' }} flex items-center justify-center">
+                    <x-base.lucide icon="{{ $todayBalance >= 0 ? 'TrendingUp' : 'TrendingDown' }}" class="w-5 h-5 {{ $todayBalance >= 0 ? 'text-success' : 'text-danger' }}" />
+                </div>
+                <div class="text-2xl font-bold mt-4 {{ $todayBalance >= 0 ? 'text-success' : 'text-danger' }}">${{ number_format(abs($todayBalance), 0, ',', '.') }}</div>
+                <div class="text-slate-500 text-sm mt-1">Balance del Día</div>
+                <div class="text-slate-400 text-xs mt-1">Ventas − Gastos</div>
+            </div>
+        </div>
+
+        {{-- Gastos del Mes --}}
+        <div class="intro-y">
+            <div class="box p-5 h-full">
+                <div class="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center">
+                    <x-base.lucide icon="CalendarDays" class="w-5 h-5 text-amber-500" />
+                </div>
+                <div class="text-2xl font-bold mt-4">${{ number_format($monthExpensesTotal, 0, ',', '.') }}</div>
+                <div class="text-slate-500 text-sm mt-1">Gastos del Mes</div>
+            </div>
+        </div>
+
+        {{-- Balance del Mes --}}
+        @php $monthBalance = $monthSalesTotal - $monthExpensesTotal; @endphp
+        <div class="intro-y">
+            <div class="box p-5 h-full {{ $monthBalance >= 0 ? 'border-l-4 border-primary' : 'border-l-4 border-danger' }}">
+                <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                    <x-base.lucide icon="BarChart2" class="w-5 h-5 text-primary" />
+                </div>
+                <div class="text-2xl font-bold mt-4 {{ $monthBalance >= 0 ? 'text-primary' : 'text-danger' }}">${{ number_format(abs($monthBalance), 0, ',', '.') }}</div>
+                <div class="text-slate-500 text-sm mt-1">Balance del Mes</div>
+                <div class="text-slate-400 text-xs mt-1">Ventas ${{ number_format($monthSalesTotal, 0, ',', '.') }}</div>
+            </div>
+        </div>
+
+    </div>
+
     <!-- ── Charts Row ── -->
     <div class="grid grid-cols-12 gap-4 mb-6">
 

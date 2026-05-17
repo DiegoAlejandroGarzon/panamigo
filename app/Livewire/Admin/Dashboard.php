@@ -3,6 +3,7 @@
 namespace App\Livewire\Admin;
 
 use Livewire\Component;
+use App\Models\Expense;
 use App\Models\Order;
 use App\Models\ZReport;
 use Carbon\Carbon;
@@ -110,6 +111,16 @@ class Dashboard extends Component
         // --- Último reporte Z ---
         $lastZReport = ZReport::latest()->first();
 
+        // --- Gastos (expenses) ---
+        $todayExpensesTotal = Expense::whereDate('created_at', now()->toDateString())->sum('amount');
+        $monthExpensesTotal = Expense::whereYear('created_at', now()->year)
+            ->whereMonth('created_at', now()->month)
+            ->sum('amount');
+        $monthSalesTotal = Order::where('status', 'paid')
+            ->whereYear('created_at', now()->year)
+            ->whereMonth('created_at', now()->month)
+            ->sum('total');
+
         return view('livewire.admin.dashboard', [
             'totalSalesToday'  => $totalSalesToday,
             'totalOrdersToday' => $totalOrdersToday,
@@ -125,9 +136,12 @@ class Dashboard extends Component
             'peakHour'         => $peakAmount > 0 ? $peakHour : 'Sin ventas aún',
             'weeklyLabels'     => $weeklyLabels,
             'weeklyData'       => $weeklyData,
-            'recentOrders'     => $recentOrders,
-            'topProducts'      => $topProducts,
-            'lastZReport'      => $lastZReport,
+            'recentOrders'          => $recentOrders,
+            'topProducts'           => $topProducts,
+            'lastZReport'           => $lastZReport,
+            'todayExpensesTotal'    => $todayExpensesTotal,
+            'monthExpensesTotal'    => $monthExpensesTotal,
+            'monthSalesTotal'       => $monthSalesTotal,
         ]);
     }
 }

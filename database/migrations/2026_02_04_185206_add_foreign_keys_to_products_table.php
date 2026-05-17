@@ -11,10 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('products', function (Blueprint $table) {
-            $table->foreign('category_id')->references('id')->on('categories')->onDelete('set null');
-            $table->foreign('brand_id')->references('id')->on('brands')->onDelete('set null');
-        });
+        try {
+            Schema::table('products', function (Blueprint $table) {
+                $table->foreign('category_id')->references('id')->on('categories')->onDelete('set null');
+            });
+        } catch (\Exception $e) {}
+
+        try {
+            Schema::table('products', function (Blueprint $table) {
+                $table->foreign('brand_id')->references('id')->on('brands')->onDelete('set null');
+            });
+        } catch (\Exception $e) {}
     }
 
     /**

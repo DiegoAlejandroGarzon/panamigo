@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Dashboard;
 
+use App\Models\Expense;
 use App\Models\Order;
 use App\Models\ZReport;
 use Carbon\Carbon;
@@ -142,12 +143,28 @@ class SimpleDashboard extends Component
         $pendingZOrders = Order::where('customer_served_by', 'Caja Simple')->where('status', 'paid')->whereNull('z_report_id')->get();
         $zReports = ZReport::with('user')->latest()->take(10)->get();
 
+        // Gastos hoy y del mes
+        $todayExpenses = Expense::whereDate('created_at', $today)->get();
+        $todayExpensesTotal = $todayExpenses->sum('amount');
+        $monthExpensesTotal = Expense::whereYear('created_at', date('Y'))
+            ->whereMonth('created_at', date('m'))
+            ->sum('amount');
+        $monthSalesTotal = Order::whereYear('created_at', date('Y'))
+            ->whereMonth('created_at', date('m'))
+            ->where('status', 'paid')
+            ->where('customer_served_by', 'Caja Simple')
+            ->sum('total');
+
         return view('livewire.dashboard.simple-dashboard', [
             'totalSales' => $totalSales, 'totalCount' => $totalCount, 'averageTicket' => $averageTicket,
             'chartLabels' => $chartLabels, 'chartData' => $chartData, 'chartCounts' => $chartCounts,
             'peakHour' => $peakHour, 'maxIntervalSales' => $maxIntervalSales,
             'pendingZCount' => $pendingZOrders->count(), 'pendingZTotal' => $pendingZOrders->sum('total'),
-            'zReports' => $zReports
+            'zReports' => $zReports,
+            'todayExpenses' => $todayExpenses,
+            'todayExpensesTotal' => $todayExpensesTotal,
+            'monthExpensesTotal' => $monthExpensesTotal,
+            'monthSalesTotal' => $monthSalesTotal,
         ]);
     }
 }

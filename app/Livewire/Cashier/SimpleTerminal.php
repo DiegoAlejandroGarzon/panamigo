@@ -4,6 +4,7 @@ namespace App\Livewire\Cashier;
 
 use Livewire\Component;
 use App\Models\Order;
+use App\Models\Expense;
 
 class SimpleTerminal extends Component
 {
@@ -12,6 +13,11 @@ class SimpleTerminal extends Component
     public $zDate = '';
     public $zTotal = 0;
     public $zCount = 0;
+
+    // Pedidos / Gastos
+    public $expenseAmount = '';
+    public $expenseConcept = '';
+    public $expenseCategory = 'Materia Prima';
 
     public function mount()
     {
@@ -24,6 +30,27 @@ class SimpleTerminal extends Component
         $this->zCount = rand(80, 95);
     }
 
+    public function registerExpense()
+    {
+        $this->validate([
+            'expenseAmount'   => 'required|numeric|min:1',
+            'expenseConcept'  => 'required|string|max:255',
+            'expenseCategory' => 'required|string',
+        ]);
+
+        Expense::create([
+            'amount'   => $this->expenseAmount,
+            'concept'  => $this->expenseConcept,
+            'category' => $this->expenseCategory,
+            'user_id'  => auth()->id(),
+        ]);
+
+        $this->expenseAmount  = '';
+        $this->expenseConcept = '';
+        $this->expenseCategory = 'Materia Prima';
+        session()->flash('expense_message', 'Pedido registrado correctamente.');
+    }
+
     public function render()
     {
         $recentSales = Order::where('customer_served_by', 'Caja Simple')
@@ -32,8 +59,13 @@ class SimpleTerminal extends Component
             ->take(5)
             ->get();
 
+        $todayExpenses = Expense::whereDate('created_at', date('Y-m-d'))
+            ->latest()
+            ->get();
+
         return view('livewire.cashier.simple-terminal', [
-            'recentSales' => $recentSales
+            'recentSales'   => $recentSales,
+            'todayExpenses' => $todayExpenses,
         ]);
     }
 
